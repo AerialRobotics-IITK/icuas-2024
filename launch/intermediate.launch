@@ -1,0 +1,5 @@
+<launch>
+    <node name="intermediate" pkg="intermediate" type="intermediate" output="screen">
+        <rosparam command="load" file="$(find intermediate)/config/default.yaml" />
+    </node>
+</launch>

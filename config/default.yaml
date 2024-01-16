@@ -1,0 +1,13 @@
+rate: 10
+queue_size: 10
+altitude: 2
+tolerance: 0.1
+mode: GUIDED
+set_mode_service: /red/mavros/set_mode
+arm_service: /red/mavros/cmd/arming
+takeoff_service: /red/mavros/cmd/takeoff
+land_service: /red/mavros/cmd/land
+state_subscription: /red/mavros/state
+position_subscription: /red/carrot/pose
+position_publisher: /red/tracker/input_pose
+topic_name: fruit_count
