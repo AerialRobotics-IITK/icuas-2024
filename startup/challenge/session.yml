@@ -23,7 +23,7 @@ windows:
       panes:
         - waitForRos; roslaunch ardupilot_gazebo kopterworx.launch 
           use_sim_time:=true
-          x:=1.5 y:=1.5
+          x:=1 y:=1
           world:=$(rospack find icuas24_competition)/worlds/well_lit.world
         - waitForRos; waitForSimulation; roslaunch icuas24_competition spawn_greenhouse_world.launch
         - |
@@ -91,3 +91,18 @@ windows:
       panes:
         - waitForRos; roslaunch uav_ros_tracker topp_tracker.launch 
           tracker_config:=custom_config/topp_config_custom.yaml
+  - intermediate_solution:
+      layout:
+      panes:
+        - |
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          sleep 20
+          rosrun icuas24_competition icuas24_competition_intermediate
+        - |
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          sleep 20
+          rostopic echo /red/carrot/pose
