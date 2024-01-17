@@ -1,119 +1,34 @@
 # ICUAS 2024 UAV Competition
-The main repository for ICUAS'24 UAV competition
+The main repository for ICUAS'24 UAV competition for submission by ariitk
 
-If you're interested in publishing papers based on this repository, please cite the following publication:
-```
-@article{Markovic2023,
-  doi = {10.1007/s10846-023-01909-z},
-  url = {https://doi.org/10.1007/s10846-023-01909-z},
-  year = {2023},
-  month = jul,
-  publisher = {Springer Science and Business Media {LLC}},
-  volume = {108},
-  number = {3},
-  author = {Lovro Markovic and Frano Petric and Antun Ivanovic and Jurica Goricanec and Marko Car and Matko Orsag and Stjepan Bogdan},
-  title = {Towards A Standardized Aerial Platform: {ICUAS}'22 Firefighting Competition},
-  journal = {Journal of Intelligent {\&}amp$\mathsemicolon$ Robotic Systems}
-}
-```
-## How to apply
-Teams interested in the ICUAS'24 UAV Competition are encouraged to check the [rulebook](rulebook/ICUAS24_UAV_Comp_Rulebook_V1.pdf). Instructions on how to apply are in the rulebook. 
+## Rulebook
+Check the [rulebook](rulebook/ICUAS24_UAV_Comp_Rulebook_V1.pdf).
 
-## Install
+## Running on Docker
 
-You can either manually install the UAV software stack by following 
-[uav_ros_simulation](https://github.com/larics/uav_ros_simulation) instructions or simply 
-use Docker instead.
+### Installing Docker
+Check the official docker engine installation [guide](https://docs.docker.com/engine/install/)
 
-To install Docker on your system execute the following command:
-```
-curl https://raw.githubusercontent.com/larics/uav_ros_simulation/main/installation/dependencies/docker.sh | bash
-```
+### Building and Running Docker Image
+Run the following commands in order
+- ```
+  ./docker_build.sh --build-args "--no-cache --pull" --focal-nogpu
+  ```
 
-## Troubleshooting
+  `--no-cache` will ensure that you do not store any cache for any of the docker commands executed other than cached images, hence everytime you rebuild using this command your current working directory (i.e. the package with the latest changes on local) will be copied onto the docker container
 
-Check out ```CHANGELOG.md``` for any new changes added to this project.
+- ```
+  ./docker_run.sh --run-args "--rm" --focal-nogpu
+  ```
 
-Feel free to use the [Discussions](https://github.com/larics/icuas23_competition/discussions) tab to exchange ideas and ask questions.
+  `--rm` will ensure that the docker container is always stopped and removed, whenever you all instances of the container have been closed
 
-Consider opening an [Issue](https://github.com/larics/icuas23_competition/issues) if you have troubles with the simulation setup.
+## Current Progress
+- [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
+- [ ] Testing intermediate submission (from scratch) on bare minimum sandbox
+- [ ] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing (**Deadline - 20th Jan**)
 
-**NOTE** - If the challenge is not set up correctly it is (probably) not your fault! Components are subject to some changes during the competition so most problems should be solved by updating packages. Try following the troubleshooting recommendation. If the problem persists please post an issue.
-
-### Update this package
-In case there are new changes to the challenge repository:
-```bash
-git pull origin main --rebase
-catkin build
-```
-
-### Update Docker images
-In case the Docker container simulation is not working correctly (e.g. an update happened):
-```bash
-git pull lmark1/uav_ros_simulation:[[DISTRO]]
-```
-
-In case the simulation inside the Docker container is (still) not working correctly:
-```bash
-./docker_build.sh --build-args "--no-cache --pull" --[[DISTRO]]
-```
-
-### Updating native installation
-If you're building all the packages natively, navigate to the ```uav_ros_simulation``` folder and do the following:
-```bash
-git pull origin main
-./installation/install.sh
-
-# Navigate to catkin workspace (default is uav_ws)
-catkin build
-```
-
-Update all code of the competition repo and build as follows:
-```bash
-git pull origin main
-catkin build
-```
-
-## Build
-
-You can either manually build all the packages on your system using the ```catkin build``` command.
-
-Alternatively, to build the ICUAS2024 Competition solution image please execute the following command:
-```
-./docker_build.sh
-```
-
-Additional arguments:
-* ```--focal``` - Build Docker image for Focal distro
-* ```--focal-nogpu``` - Build Docker image for Focal distro (no dedicated graphics card)
-* ```--build-args``` - Append additional Docker build arguments, e.g. --no-cache
-
-## Startup
-
-To automatically start and setup the challenge navigate to ```startup/challenge``` and run:
-```
-./start.sh
-```
-This should automatically setup and start the challenge, as well as run your code (see solution section in session.yml)
-
-* Commands that run your challenge solution (rosrun, roslaunch etc.) should be placed in the ```session.yml``` file.
-* Software configuration specific to the challenge should be placed in the ```custom_config``` folder.
-
-**NOTE** If you are unfamiliar with the Docker or Tmux commands please check out this [quick-start guide](https://github.com/larics/uav_ros_simulation/blob/main/HOWTO.md).
-
-**NOTE** If you choose to run the challenge inside the docker environment, please run the container first using:
-```
-./docker_run.sh
-```
-
-Additional arguments:
-* ```--focal``` - Run Focal distro container
-* ```--focal-nogpu``` - Run Focal distro container (no dedicated graphics card)
-* ```--run-args``` - Append additional Docker run arguments, e.g. --rm
-
-**NOTE** Keep in mind this will start a new container so any changes you make inside that container will be lost if you remove the container.
-The idea of the container is to easily integrate your code with the challenge flight stack. To do so, please add your code directly to this ROS package since it is copied to the container. Furthermore, feel free to edit ```Dockerfile.focal``` or ```Dockerfile.bionic``` files to 
-get all the resources and build your solution.
+Further TODOs will be listed here.
 
 ## Simulation
 
