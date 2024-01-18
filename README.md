@@ -6,23 +6,28 @@ Check the [rulebook](rulebook/ICUAS24_UAV_Comp_Rulebook_V1.pdf).
 
 ## Running on Docker
 
-### Installing Docker
+#### Installing Docker
 Check the official docker engine installation [guide](https://docs.docker.com/engine/install/)
 
-### Building and Running Docker Image
-Run the following commands in order
-- ```
-  ./docker_build.sh --build-args "--no-cache --pull" --focal-nogpu
+#### Building and Running Docker Image
+  Run the following commands in order
+  - ```
+    ./docker_build.sh --build-args "--no-cache --pull" --focal-nogpu
+    ```
+  
+    `--no-cache` will ensure that you do not store any cache for any of the docker commands executed other than cached images, hence everytime you rebuild using this command your current working directory (i.e. the package with the latest changes on local) will be copied onto the docker container
+  
+  - ```
+    ./docker_run.sh --run-args "--rm" --focal-nogpu
+    ```
+  
+    `--rm` will ensure that the docker container is always stopped and removed, whenever you all instances of the container have been closed
+
+#### Removing cached Docker data
+  If you had run docker without the `--no-cache` flag, you would have a cached copy of the package. So, any local changes in the workspace will not be reflected on docker no matter how many times you stop/rerun the container. To circumvent around this, you need to remove the cached docker images and files completely and, then use the above two commands for your workflow.
   ```
-
-  `--no-cache` will ensure that you do not store any cache for any of the docker commands executed other than cached images, hence everytime you rebuild using this command your current working directory (i.e. the package with the latest changes on local) will be copied onto the docker container
-
-- ```
-  ./docker_run.sh --run-args "--rm" --focal-nogpu
+  docker system prune --all
   ```
-
-  `--rm` will ensure that the docker container is always stopped and removed, whenever you all instances of the container have been closed
-
 ## Current Progress
 - [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
 - [ ] Testing intermediate submission (from scratch) on bare minimum sandbox
