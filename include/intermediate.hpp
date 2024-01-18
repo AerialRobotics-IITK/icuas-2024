@@ -38,7 +38,7 @@ private:
     ros::Publisher count_pub;
     std::vector<WaypointWithTime> waypoints;
 
-    const double tolerance = 0.1;
+    const double tolerance = 0.2;
 
 public:
     geometry_msgs::PoseStamped current_position;
