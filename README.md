@@ -30,8 +30,8 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
   ```
 ## Current Progress
 - [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
-- [ ] Testing intermediate submission (from scratch) on bare minimum sandbox
-- [ ] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing (**Deadline - 20th Jan**)
+- [X] Testing intermediate submission (from scratch) on bare minimum sandbox
+- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing (**Deadline - 20th Jan**)
 
 Further TODOs will be listed here.
 
