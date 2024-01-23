@@ -1,0 +1,37 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/atulya/Workspaces/robofest23/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/atulya/Workspaces/rotors/devel/include/**",
+        "/home/atulya/Workspaces/robofest23/src/Object-Detection-via-ROS-Darknet/communication/include/**",
+        "/home/atulya/Workspaces/robofest23/src/iq_gnc/include/**",
+        "/home/atulya/Workspaces/robofest23/src/kindr/include/**",
+        "/home/atulya/Workspaces/robofest23/src/librealsense/include/**",
+        "/home/atulya/Workspaces/robofest23/src/lightweight_filtering/include/**",
+        "/home/atulya/Workspaces/rotors/src/mav_comm/mav_msgs/include/**",
+        "/home/atulya/Workspaces/rotors/src/mav_comm/mav_planning_msgs/include/**",
+        "/home/atulya/Workspaces/robofest23/src/InterIIT_2023_legacy/ocam/include/**",
+        "/home/atulya/Workspaces/robofest23/src/rosserial/rosserial_server/include/**",
+        "/home/atulya/Workspaces/robofest23/src/rosserial/rosserial_test/include/**",
+        "/home/atulya/Workspaces/rotors/src/rotors_simulator/rotors_control/include/**",
+        "/home/atulya/Workspaces/rotors/src/rotors_simulator/rotors_gazebo_plugins/include/**",
+        "/home/atulya/Workspaces/rotors/src/rotors_simulator/rotors_hil_interface/include/**",
+        "/home/atulya/Workspaces/rotors/src/rotors_simulator/rotors_joy_interface/include/**",
+        "/home/atulya/Workspaces/robofest23/src/robofest2_swarm/swarm_gazebo/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

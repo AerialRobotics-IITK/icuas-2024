@@ -12,7 +12,7 @@
   <arg name="exclude_floor_link_from_collision_check" default="ground_plane::link"/>
   <arg name="model" value="$(find icuas24_competition)/models/icuas24/icuas24.urdf.gazebo" />
 
-  <arg name="empty_world" default="true"/>
+  <arg name="empty_world" default="false"/>
 
   <group unless="$(arg empty_world)"> 
     <!-- send the robot XML to param server -->

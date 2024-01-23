@@ -1,0 +1,12 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/atulya/Workspaces/robofest23/devel/lib/python3/dist-packages",
+        "/home/atulya/Workspaces/rotors/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/atulya/Workspaces/robofest23/devel/lib/python3/dist-packages",
+        "/home/atulya/Workspaces/rotors/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
+}
