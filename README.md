@@ -31,9 +31,10 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
 ## Current Progress
 - [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
 - [X] Testing intermediate submission (from scratch) on bare minimum sandbox
-- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing (**Deadline - 20th Jan**)
-
-Further TODOs will be listed here.
+- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing
+- [ ] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
+- [ ] Enabling detection, and counting the fruits using camera feed while drone traverses the hardcoded trajectory; count fruits ignoring double counting
+- [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
 
 ## Simulation
 
