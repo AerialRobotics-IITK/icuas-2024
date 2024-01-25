@@ -100,6 +100,6 @@ You can change plant locations through the session file or spawn them from a sep
 Green: Y Axis 
 Red: X Axis 
 
-Gap between shelf: 6.00 ; Range(4.00, 16.00)
-Gap between shelf: 1.50 ; Range(4.5, 22.5)
-Gap between z levels : 2.80 ; Range(1.1, 6.99999999999999) 
+* Gap between shelf: 6.00 ; Range(4.00, 16.00)
+* Gap between shelf: 1.50 ; Range(4.5, 22.5)
+* Gap between z levels : 2.80 ; Range(1.1, 6.99999999999999) 
