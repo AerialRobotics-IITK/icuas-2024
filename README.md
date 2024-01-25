@@ -94,3 +94,12 @@ Make sure to wait for data on both topics to safely run your code.
 
 ### Changing the plant locations for testing
 You can change plant locations through the session file or spawn them from a separate terminal. Use position args to change the location of the plant. 
+
+### Sign convention used and Distances between beds 
+
+Green: Y Axis 
+Red: X Axis 
+
+Gap between shelf: 6.00 ; Range(4.00, 16.00)
+Gap between shelf: 1.50 ; Range(4.5, 22.5)
+Gap between z levels : 2.80 ; Range(1.1, 6.99999999999999) 
