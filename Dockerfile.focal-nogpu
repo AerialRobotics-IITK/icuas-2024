@@ -6,7 +6,9 @@ ARG USER=root
 
 # Step 1: Install all the needed software packages here
 RUN apt-get update && apt-get install -q -y \
-    vim
+    vim \
+    libompl-dev \
+    ompl-demos
 
 # Step 2: Go to the Catkin workspace and clone all needed ROS packages
 WORKDIR $HOME/$CATKIN_WORKSPACE/src
@@ -17,4 +19,5 @@ WORKDIR $HOME/$CATKIN_WORKSPACE/src/icuas24_competition
 COPY . .
 
 # Step 4: Build the Catkin workspace
+ARG CACHEBUST=1
 RUN catkin build --limit-status-rate 0.2

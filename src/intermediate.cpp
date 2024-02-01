@@ -1,5 +1,5 @@
-#include "intermediate.hpp"
-#include "utils.hpp"
+#include "intermediate/intermediate.hpp"
+#include "utils/utils.hpp"
 
 
 /*helper functions*/

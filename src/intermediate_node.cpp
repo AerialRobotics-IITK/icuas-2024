@@ -1,4 +1,4 @@
-#include "intermediate.hpp"
+#include "intermediate/intermediate.hpp"
 
 const std::string trajectory_topic = "/red/tracker/input_trajectory";
 const std::string position_topic = "/red/carrot/pose";
