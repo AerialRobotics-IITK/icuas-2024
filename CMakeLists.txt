@@ -139,9 +139,9 @@ add_dependencies(${PROJECT_NAME}_intermediate
   ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-add_executable(${PROJECT_NAME}_planning src/planning.cpp)
-target_link_libraries(${PROJECT_NAME}_planning ${catkin_LIBRARIES} fcl ompl)
-add_dependencies(${PROJECT_NAME}_planning 
+add_executable(${PROJECT_NAME}_planner src/planner.cpp src/planner_node.cpp)
+target_link_libraries(${PROJECT_NAME}_planner ${catkin_LIBRARIES} fcl ompl)
+add_dependencies(${PROJECT_NAME}_planner 
   ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS})
 

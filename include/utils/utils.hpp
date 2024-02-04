@@ -1,6 +1,6 @@
 /*defining ROS stream color*/
 
-namespace pc
+namespace util
 {
   enum PRINT_COLOR
   {
@@ -15,7 +15,7 @@ namespace pc
     ENDCOLOR
   };
 
-  std::ostream& operator<<(std::ostream& os, PRINT_COLOR c)
+  static std::ostream& operator<<(std::ostream& os, PRINT_COLOR c)
   {
     switch(c)
     {
@@ -32,21 +32,21 @@ namespace pc
     }
     return os;
   }
-} //namespace pc
+} //namespace util 
 
-#define ROS_BLACK_STREAM(x)   ROS_INFO_STREAM(pc::BLACK   << x << pc::ENDCOLOR)
-#define ROS_RED_STREAM(x)     ROS_INFO_STREAM(pc::RED     << x << pc::ENDCOLOR)
-#define ROS_GREEN_STREAM(x)   ROS_INFO_STREAM(pc::GREEN   << x << pc::ENDCOLOR)
-#define ROS_YELLOW_STREAM(x)  ROS_INFO_STREAM(pc::YELLOW  << x << pc::ENDCOLOR)
-#define ROS_BLUE_STREAM(x)    ROS_INFO_STREAM(pc::BLUE    << x << pc::ENDCOLOR)
-#define ROS_MAGENTA_STREAM(x) ROS_INFO_STREAM(pc::MAGENTA << x << pc::ENDCOLOR)
-#define ROS_CYAN_STREAM(x)    ROS_INFO_STREAM(pc::CYAN    << x << pc::ENDCOLOR)
+#define ROS_BLACK_STREAM(x)   ROS_INFO_STREAM(util::BLACK   << x << util::ENDCOLOR)
+#define ROS_RED_STREAM(x)     ROS_INFO_STREAM(util::RED     << x << util::ENDCOLOR)
+#define ROS_GREEN_STREAM(x)   ROS_INFO_STREAM(util::GREEN   << x << util::ENDCOLOR)
+#define ROS_YELLOW_STREAM(x)  ROS_INFO_STREAM(util::YELLOW  << x << util::ENDCOLOR)
+#define ROS_BLUE_STREAM(x)    ROS_INFO_STREAM(util::BLUE    << x << util::ENDCOLOR)
+#define ROS_MAGENTA_STREAM(x) ROS_INFO_STREAM(util::MAGENTA << x << util::ENDCOLOR)
+#define ROS_CYAN_STREAM(x)    ROS_INFO_STREAM(util::CYAN    << x << util::ENDCOLOR)
 
-#define ROS_BLACK_STREAM_COND(c, x)   ROS_INFO_STREAM_COND(c, pc::BLACK   << x << pc::ENDCOLOR)
-#define ROS_RED_STREAM_COND(c, x)     ROS_INFO_STREAM_COND(c, pc::RED     << x << pc::ENDCOLOR)
-#define ROS_GREEN_STREAM_COND(c, x)   ROS_INFO_STREAM_COND(c, pc::GREEN   << x << pc::ENDCOLOR)
-#define ROS_YELLOW_STREAM_COND(c, x)  ROS_INFO_STREAM_COND(c, pc::YELLOW  << x << pc::ENDCOLOR)
-#define ROS_BLUE_STREAM_COND(c, x)    ROS_INFO_STREAM_COND(c, pc::BLUE    << x << pc::ENDCOLOR)
-#define ROS_MAGENTA_STREAM_COND(c, x) ROS_INFO_STREAM_COND(c, pc::MAGENTA << x << pc::ENDCOLOR)
-#define ROS_CYAN_STREAM_COND(c, x)    ROS_INFO_STREAM_COND(c, pc::CYAN    << x << pc::ENDCOLOR)
+#define ROS_BLACK_STREAM_COND(c, x)   ROS_INFO_STREAM_COND(c, util::BLACK   << x << util::ENDCOLOR)
+#define ROS_RED_STREAM_COND(c, x)     ROS_INFO_STREAM_COND(c, util::RED     << x << util::ENDCOLOR)
+#define ROS_GREEN_STREAM_COND(c, x)   ROS_INFO_STREAM_COND(c, util::GREEN   << x << util::ENDCOLOR)
+#define ROS_YELLOW_STREAM_COND(c, x)  ROS_INFO_STREAM_COND(c, util::YELLOW  << x << util::ENDCOLOR)
+#define ROS_BLUE_STREAM_COND(c, x)    ROS_INFO_STREAM_COND(c, util::BLUE    << x << util::ENDCOLOR)
+#define ROS_MAGENTA_STREAM_COND(c, x) ROS_INFO_STREAM_COND(c, util::MAGENTA << x << util::ENDCOLOR)
+#define ROS_CYAN_STREAM_COND(c, x)    ROS_INFO_STREAM_COND(c, util::CYAN    << x << util::ENDCOLOR)
 
