@@ -60,8 +60,8 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
 - [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
 - [X] Implementing Motion planning given the static occupancy grid / collision geoemtries using OML & PCL
 - [X] Adding a frontend to the implemented planner to take input of multiple waypoints as ``std::vector``
+- [ ] Testing the constraints and remove any hardcoded delays in planner
 - [ ] Integrating the algorithm for generating permuatution of waypoints with the planner
-- [ ] Modifying planner code to remove any hardcoded delays, and making it more robust
 - [ ] Implementating alternative motion planning approach with only heuristcs
 - [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
 
