@@ -1,4 +1,5 @@
 #include "planner/planner.h"
+#define DEBUG 1
 
 planner::planner(ros::NodeHandle nh_, ros::Publisher traj_pub_) : nh(nh_), traj_pub(traj_pub_){
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
@@ -22,29 +23,41 @@ planner::planner(ros::NodeHandle nh_, ros::Publisher traj_pub_) : nh(nh_), traj_
 
     si = ob::SpaceInformationPtr(new ob::SpaceInformation(space));
 
+    // initializing waypoints
     start->setXYZ(1,1,1);
     start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
-    goal->setXYZ(0,0,0);
+    goal->setXYZ(1,1,1);
     goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
 
+    // defining validity of state
     si->setStateValidityChecker(std::bind(&planner::isStateValid, this, std::placeholders::_1 ));
 
+    // defining problem definition on the state space described
     pdef = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(si));
     pdef->setStartAndGoalStates(start, goal);
     pdef->setOptimizationObjective(planner::getPathLengthObjWithCostToGo(si));
 
+    // defining planner; right now it uses a sampling-based approach i.e. RRT 
+    // TODO: backtest approach of different planners
     o_plan = ob::PlannerPtr(new og::InformedRRTstar(si));
     o_plan->setProblemDefinition(pdef);
     o_plan->setup();
     
     ROS_CYAN_STREAM("Planner Initialized");
+
+#if DEBUG
     pdef->print(std::cout);
+#endif
+
 }
 
 planner::~planner(){};
 
 void planner::plan(void){
 
+
+    /*Getting and priniting values at runtime for debugging*/
+#if DEBUG
     std::vector<double> reals_goal;
     space->copyToReals(reals_goal, pdef->getGoal()->as<ob::GoalState>()->getState());
     std::cout << "Goal: " << "(" << reals_goal[0] << "," << reals_goal[1] << "," << reals_goal[2] << ")" << std::endl; 
@@ -56,15 +69,18 @@ void planner::plan(void){
     double start_y = state->getY();
     double start_z = state->getZ();
     std::cout << "Start: " << "("<< start_x << "," << start_y << "," << start_z << ")" << std::endl;
-
+#endif
     
     ROS_INFO("Planning!");
 
+    // initializing planner again, to reflect changes in start and endpoint
     o_plan = ob::PlannerPtr(new og::InformedRRTstar(si));
     o_plan->setProblemDefinition(pdef);
     o_plan->setup();
 
+#if DEBUG
     pdef->print(std::cout);
+#endif 
 
     ob::PlannerStatus solved = o_plan->solve(4);
     if(solved){
@@ -72,8 +88,11 @@ void planner::plan(void){
 
         ob::PathPtr path = pdef->getSolutionPath();
         og::PathGeometric* pth = pdef->getSolutionPath()->as<og::PathGeometric>();
+
+        //printing the solution path
         pth->printAsMatrix(std::cout);
 
+        //creating the trajectory msg of the generating path for topra
         trajectory_msgs::MultiDOFJointTrajectoryPtr msg(new trajectory_msgs::MultiDOFJointTrajectory);
         msg->header.stamp = ros::Time::now();
         msg->points.resize(pth->getStateCount());
@@ -105,37 +124,12 @@ void planner::plan(void){
         ROS_CYAN_STREAM("Started publishing waypoints.");
         traj_pub.publish(msg);       
     }
+
     else{
+        //invalid waypoint given; can be due to being defined outside bounds or because it is colliding with the collision geometries
         ROS_INFO("No Solution Found");
     }
 }
-
-// void planner::setGoal(double x, double y, double z)
-// {
-//     ROS_INFO("Setting Goal!");
-//     ob::ScopedState<ob::SE3StateSpace> goal(space);
-//     goal->setXYZ(x, y, z);
-//     goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
-
-//     pdef->clearGoal();
-//     pdef->setGoalState(goal);
-
-//     ROS_INFO("(%f,%f,%f) set as goal!", x, y, z);
-
-// }
-
-// void planner::setStart(double x, double y, double z){
-//     ROS_INFO("Resetting Start Position!");
-
-//     ob::ScopedState<ob::SE3StateSpace> start(space);
-//     start->setXYZ(x, y, z);
-//     start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
-
-//     pdef->clearStartStates();
-//     pdef->addStartState(start);
-
-//     ROS_INFO("(%f,%f,%f) set as start!", x, y, z);
-// }
 
 bool planner::isStateValid(const ob::State *state){
     const ob::SE3StateSpace::StateType *se3state = state->as<ob::SE3StateSpace::StateType>();
@@ -190,6 +184,7 @@ void planner::run(std::vector<std::vector<double>> positions){
         start->setXYZ(prev_pos[0], prev_pos[1], prev_pos[2]);
         start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
 
+        // clearing the stored solution paths / waypoints and assigning new ones
         pdef->clearSolutionPaths();  
 
         pdef->clearStartStates();
@@ -199,7 +194,10 @@ void planner::run(std::vector<std::vector<double>> positions){
         pdef->setGoalState(goal);
 
         plan();
-        sleep(10); //wait at that position for a while
+
+        //wait at that position for a while 
+        //TODO: instead of hardcoding delay for of reaching the desired waypoint, subscribe the pose topic; and switch to next waypoint as in when it reaches the current one
+        sleep(10); 
 
         prev_pos[0] = pos[0];
         prev_pos[1] = pos[1];

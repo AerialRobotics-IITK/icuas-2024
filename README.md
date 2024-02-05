@@ -16,6 +16,13 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
     ```
   
     `--no-cache` will ensure that you do not store any cache for any of the docker commands executed other than cached images, hence everytime you rebuild using this command your current working directory (i.e. the package with the latest changes on local) will be copied onto the docker container
+
+
+    Alternative Command:
+    ``` 
+    ./docker_build.sh --build-args "--pull --build-arg CACHEBUST=0" --focal-nogpu
+    ``` 
+    `CACHEBUST` when set to 0 would ensure all the docker commands are run from cache until the value of the argument remains same. In our case, I have modified the Dockerfile for this argument changes right at the command where we don't want data from the cache to be used. This saves some bit of time by skipping system wide installations (once they are atleast run once).
   
   - ```
     ./docker_run.sh --run-args "--rm" --focal-nogpu
@@ -29,13 +36,35 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
   docker system prune --all
   ```
 ## Current Progress
+
+### Intermediate Submission
 - [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
 - [X] Testing intermediate submission (from scratch) on bare minimum sandbox
 - [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing
-- [ ] Takeoff Service Conflicting with waypoint follower
-- [ ] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
+- [X] Takeoff Service Conflicting with waypoint follower -> increase delay in the call of the trajectory planner
+- [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
+- [X] Testing intermediate submission (from scratch) on bare minimum sandbox
+- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing
+
+### Detection / Image Processing
+- [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
+- [X] Enabling detection, and counting the fruits using camera feed while drone traverses the hardcoded trajectory; count fruits ignoring double counting
+- [X] Implementing feed stabilizer using quaternion data from pose
+- [X] A simple detection function to count the fruits given a centered pic of the fruits (taking into account the variety observed)
 - [ ] Enabling detection, and counting the fruits using camera feed while drone traverses the hardcoded trajectory; count fruits ignoring double counting
 - [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
+- [ ] Improving the detection pipeline by optimizing parameters
+- [ ] Integrating the entire detection pipeline as a single cohesive package
+
+### Trajectory Generation
+- [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
+- [X] Implementing Motion planning given the static occupancy grid / collision geoemtries using OML & PCL
+- [X] Adding a frontend to the implemented planner to take input of multiple waypoints as ``std::vector``
+- [ ] Integrating the algorithm for generating permuatution of waypoints with the planner
+- [ ] Modifying planner code to remove any hardcoded delays, and making it more robust
+- [ ] Implementating alternative motion planning approach with only heuristcs
+- [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
+
 
 ## Simulation
 

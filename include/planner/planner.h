@@ -60,7 +60,5 @@ public:
     ~planner();
 
     void plan(void);
-	void setGoal(double x, double y, double z);
-    void setStart(double x, double y, double z);
     void run(std::vector<std::vector<double>> positions);
 };
