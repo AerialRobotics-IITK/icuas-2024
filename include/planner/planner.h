@@ -11,7 +11,10 @@
 #include <ompl/geometric/PathSimplifier.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/geometric/SimpleSetup.h>
+#include <ompl/base/goals/GoalState.h>
 #include <ompl/config.h>
+#include <ompl/base/SpaceInformation.h>
+#include <ompl/base/StateSpace.h>
 
 #include <Eigen/Geometry>
 
@@ -49,7 +52,6 @@ private:
 
     ros::NodeHandle nh;
     ros::Publisher traj_pub;
-    ros::Subscriber pos_sub;
 
     ob::OptimizationObjectivePtr getPathLengthObjWithCostToGo(const ob::SpaceInformationPtr);
     bool isStateValid(const ob::State *state);
@@ -59,5 +61,6 @@ public:
 
     void plan(void);
 	void setGoal(double x, double y, double z);
+    void setStart(double x, double y, double z);
     void run(std::vector<std::vector<double>> positions);
 };

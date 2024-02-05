@@ -45,7 +45,27 @@ planner::~planner(){};
 
 void planner::plan(void){
 
+    std::vector<double> reals_goal;
+    space->copyToReals(reals_goal, pdef->getGoal()->as<ob::GoalState>()->getState());
+    std::cout << "Goal: " << "(" << reals_goal[0] << "," << reals_goal[1] << "," << reals_goal[2] << ")" << std::endl; 
+
+
+    const ompl::base::State* statePtr = pdef->getStartState(0);
+    const ompl::base::SE3StateSpace::StateType *state = statePtr->as<ompl::base::SE3StateSpace::StateType>();
+    double start_x = state->getX();
+    double start_y = state->getY();
+    double start_z = state->getZ();
+    std::cout << "Start: " << "("<< start_x << "," << start_y << "," << start_z << ")" << std::endl;
+
+    
     ROS_INFO("Planning!");
+
+    o_plan = ob::PlannerPtr(new og::InformedRRTstar(si));
+    o_plan->setProblemDefinition(pdef);
+    o_plan->setup();
+
+    pdef->print(std::cout);
+
     ob::PlannerStatus solved = o_plan->solve(4);
     if(solved){
         ROS_INFO("Found Solution:");
@@ -84,41 +104,38 @@ void planner::plan(void){
         }
         ROS_CYAN_STREAM("Started publishing waypoints.");
         traj_pub.publish(msg);       
-        //ros::spinOnce();
-
     }
     else{
         ROS_INFO("No Solution Found");
     }
 }
 
-void planner::setGoal(double x, double y, double z)
-{
-    ROS_INFO("Setting Goal!");
-    ob::ScopedState<ob::SE3StateSpace> goal(space);
-    goal->setXYZ(x, y, z);
-    goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
+// void planner::setGoal(double x, double y, double z)
+// {
+//     ROS_INFO("Setting Goal!");
+//     ob::ScopedState<ob::SE3StateSpace> goal(space);
+//     goal->setXYZ(x, y, z);
+//     goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
 
-    pdef->clearGoal();
-    pdef->setGoalState(goal);
+//     pdef->clearGoal();
+//     pdef->setGoalState(goal);
 
-    // ompl::base::GoalStates goalStates(spaceInformation);
-    // std::vector<ompl::base::State*> goals; 
+//     ROS_INFO("(%f,%f,%f) set as goal!", x, y, z);
 
-    // int i = 0;
-    // for(auto& goal : goals){
+// }
 
-    // }
-    // for (const auto& goal : goals) {
-    //     goalStates.addState(goal);
-    // }
-    // pdef->setGoal(goalStates);
+// void planner::setStart(double x, double y, double z){
+//     ROS_INFO("Resetting Start Position!");
 
+//     ob::ScopedState<ob::SE3StateSpace> start(space);
+//     start->setXYZ(x, y, z);
+//     start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
 
-    ROS_INFO("(%f,%f,%f) set as goal!", x, y, z);
+//     pdef->clearStartStates();
+//     pdef->addStartState(start);
 
-    plan();
-}
+//     ROS_INFO("(%f,%f,%f) set as start!", x, y, z);
+// }
 
 bool planner::isStateValid(const ob::State *state){
     const ob::SE3StateSpace::StateType *se3state = state->as<ob::SE3StateSpace::StateType>();
@@ -162,11 +179,32 @@ ob::OptimizationObjectivePtr planner::getPathLengthObjWithCostToGo(const ob::Spa
 }
 
 void planner::run(std::vector<std::vector<double>> positions){
+
+    std::vector<double> prev_pos = {1,1,1};
     for(auto pos : positions){
-        this->setGoal(pos[0],pos[1],pos[2]);
+        ob::ScopedState<ob::SE3StateSpace> goal(space);
+        goal->setXYZ(pos[0], pos[1], pos[2]);
+        goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
+
+        ob::ScopedState<ob::SE3StateSpace> start(space);
+        start->setXYZ(prev_pos[0], prev_pos[1], prev_pos[2]);
+        start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
+
+        pdef->clearSolutionPaths();  
+
+        pdef->clearStartStates();
+        pdef->addStartState(start);
+
+        pdef->clearGoal();
+        pdef->setGoalState(goal);
+
+        plan();
         sleep(10); //wait at that position for a while
+
+        prev_pos[0] = pos[0];
+        prev_pos[1] = pos[1];
+        prev_pos[2] = pos[2];
     }
-    // ros::spin();
 }
 
 
