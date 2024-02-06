@@ -35,6 +35,10 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
   ```
   docker system prune --all
   ```
+<br>
+
+**See troubleshooting section for commonly faced errors**
+
 ## Current Progress
 
 ### Intermediate Submission
