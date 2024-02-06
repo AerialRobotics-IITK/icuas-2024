@@ -131,4 +131,12 @@ Red: X Axis
 
 * Gap between shelf: 6.00 ; Range(4.00, 16.00)
 * Gap between shelf: 1.50 ; Range(4.5, 22.5)
-* Gap between z levels : 2.80 ; Range(1.1, 6.99999999999999) 
+* Gap between z levels : 2.80 ; Range(1.1, 6.99999999999999)
+
+### Troubleshooting
+
+* Incase gazebo is not starting when ./start.sh and when running gazebo in docker gives you the "No protocol specified" error, it's probably your xhost which is blocking the connection of gzserver to display its window. To allow all local connections to xhost, use this command before launching docker.
+
+```bash
+  xhost local:root
+```
