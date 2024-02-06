@@ -14,9 +14,7 @@ struct node {
 	double z;
 };
 
-
-
-void initialise(int V,vector<vector<int> >& graph) 
+void initialise(int V,vector<vector<int>>& graph) 
 { 
 	for (int i = 0; i < V; i++) { 
 		for (int j = 0; j < V; j++) { 
@@ -29,8 +27,7 @@ void initialise(int V,vector<vector<int> >& graph)
 	} 
 } 
 
-vector<int> constructPath(int u, 
-						int v) 
+vector<int> constructPath(int u, int v) 
 { 
 
 	if (Next[u][v] == -1) 
@@ -335,7 +332,7 @@ void calculate_front(double distance){
 	}
 }
 
-double calculate_waypoint_distance(vector<double> point1,vector<double> point2){	
+double calculate_waypoint_distance(vector<double> point1,vector<double> point2){
 	double sum=0;
 	for(int i=0;i<point1.size();i++){
 		sum = sum + (point1[i]-point2[i])*(point1[i]-point2[i]);
@@ -409,10 +406,9 @@ int main()
 			{ 2, INF, INF, 0 } }; 
 	initialise(V, graph); 
 
-	floydWarshall(V); 
-	vector<int> path; 
+	floydWarshall(V);
+	vector<int> path;
 	vector<int> points={1,5,2,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27};
-
 	
 	sort(points.begin(),points.end());
 
@@ -424,6 +420,7 @@ int main()
 		plane[plane_no].push_back(points[i]);
 	}
 	for(int i=0;i<plane.size();i++){
+		cout << "Plane "<< i+1 << ": ";
 		for(int j=0;j<plane[i].size();j++){
 			cout<<plane[i][j]<<" ";
 		}
@@ -435,7 +432,6 @@ int main()
 	create_graph(1,1,10);
 
 	vector<int> plane0 = find_shortest_permutation(plane[0],0);
-
 
 
 	for(int i =0;i<plane0.size();i++){
@@ -478,7 +474,8 @@ int main()
 		final_path.push_back(-1*plane2[plane2.size()-1-i]);
 	}
 
-
+	cout << endl;
+	cout << "Final index of shelf in order: ";
 	for(int i=0;i<final_path.size();i++){
 		cout<<final_path[i]<<" ";
 	}
@@ -486,7 +483,34 @@ int main()
 	get_waypoints(7.0);
 	calculate_front(6);
 	vector<vector<double>> final_waypoints = convert_vector_to_waypoints(final_path);
-	cout<<endl<<endl<<final_waypoints.size();
+	cout<<endl<<endl<< "Total no of points with plant:" <<final_path.size();
+
+	for(int i = 0; i < final_path.size(); i++){
+		if(final_path[i] > 0){
+			for(int k = 0; k<3; k++){
+				final_waypoints[(3*i)+k].push_back(0);
+			}
+		}
+		else{
+			for(int k = 0; k<3; k++){
+				final_waypoints[(3*i)+k].push_back(180);
+			}
+		}
+	}
+
+	cout << endl << endl;
+
+	for(int i =0; i<final_waypoints.size(); i++){
+		cout << "Point Coordinate " << i+1 << ": ";
+		for(int j=0; j<final_waypoints[i].size(); j++){
+			cout << " " << final_waypoints[i][j] << " ";
+		}
+		cout << endl;
+	}
+
+	cout << endl;
+
+	// cout << final_waypoints.size();
 	
 	return 0; 
-} 
+}
