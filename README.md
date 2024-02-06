@@ -135,7 +135,7 @@ Red: X Axis
 
 ### Troubleshooting
 
-* Incase gazebo is not starting when ./start.sh and when running gazebo in docker gives you the "No protocol specified" error, it's probably your xhost which is blocking the connection of gzserver to display its window. To allow all local connections to xhost, use this command before launching docker.
+* Incase gazebo is not starting when ./start.sh is run and when running gazebo in docker gives you the "No protocol specified" error, it's probably your xhost which is blocking the connection of gzserver to display its window. To allow all local connections to xhost, use this command before launching docker.
 
 ```bash
   xhost local:root
