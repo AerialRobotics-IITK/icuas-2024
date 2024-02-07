@@ -1,5 +1,7 @@
-#include <bits/stdc++.h> 
-using namespace std; 
+#include <bits/stdc++.h>
+#include <ros/ros.h>
+#include <std_msg/String.h>
+
 
 #define MAXN 100 
 const int INF = 1e7; 
@@ -7,6 +9,30 @@ const int INF = 1e7;
 int dis[MAXN][MAXN]; 
 int Next[MAXN][MAXN]; 
 
+std::vector<int> points;
+
+void plantCallback(const std_msgs::String::ConstPtr& msg)
+{
+    std::string data = msg->data;
+
+    std::string token;
+    std::stringstream ss(data);
+
+    ss >> token;
+
+    while (ss >> token) {
+        try {
+            int num = std::stoi(token);
+            points.push_back(num);
+        } catch (const std::invalid_argument& ia) {
+			ROS_ERROR("Invalid argument: %s", ia.what());
+        }
+    }
+
+	for (int i = 0; i < numbers.size(); ++i) {
+        ROS_INFO("Received index[%d]: %d", i, points[i]);
+    }
+}
 
 struct node {
 	double x;
@@ -59,7 +85,7 @@ void floydWarshall(int V)
 	} 
 } 
 
-vector<struct node*> nodes;
+std::vector<struct node*> nodes;
 
 
 void create_graph(double x, double y,double z){
@@ -198,7 +224,7 @@ int find_distance(int point1, int point2){
 }
 
 
-vector<vector<int>> all;
+std::vector<vector<int>> all;
 
 void get_all_points(int* possible,int count,vector<int> &store){
 	if(count == 9){
@@ -234,8 +260,8 @@ int check_path(vector<int> path,int start_location){
 
 
 int min_imum=INF;
-vector<int> minimum_vector;
-vector<vector<int>> minimums;
+std::vector<int> minimum_vector;
+std::vector<vector<int>> minimums;
 
 
 void permutations(vector<int> nums, int l, int h,int start_location) 
@@ -293,13 +319,13 @@ int find_next_plane_point(vector<int> plane0,vector<int> plane1){
 	return next;
 }
 	
-vector<vector<double>> waypoint_matrix;
+std::vector<vector<double>> waypoint_matrix;
 
 void get_waypoints(double inter_plant_dist){
 	
 		// int i=0;
 	for(int i=0;i<nodes.size();i++){
-		// cout<<nodes[i]->x<<" "<<nodes[i]->y<<" "<<nodes[i]->z<<endl;
+		// std::cout<<nodes[i]->x<<" "<<nodes[i]->y<<" "<<nodes[i]->z<<endl;
 
 		vector<double> waypoint1;
 		waypoint1.push_back(nodes[i]->x-inter_plant_dist);waypoint1.push_back(nodes[i]->y);waypoint1.push_back(nodes[i]->z);
@@ -395,10 +421,12 @@ vector<vector<double>> convert_vector_to_waypoints(vector<int> shelves){
 	return final_waypoints;
 }
 
-int main() 
+int main(int argc, char** argv) 
 { 
+	ros::init(argc, argv, "motion_planner");
+	ros::NodeHandle nh;
 
-	int V = 4; 
+	std::int V = 4; 
 	vector<vector<int>> graph 
 		= { { 0, 3, INF, 7 }, 
 			{ 8, 0, 2, INF }, 
@@ -407,31 +435,37 @@ int main()
 	initialise(V, graph); 
 
 	floydWarshall(V);
-	vector<int> path;
-	vector<int> points={1,5,2,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27};
+	std::vector<int> path;
+
+	ros::Subscriber sub = nh.subscribe("/red/plants_beds", 1000, plantCallback);
+
+	// vector<int> points={1,5,2,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27};
+	ros::spinOnce();
+
+
 	
 	sort(points.begin(),points.end());
 
 	// check_closest(points);
-	vector<vector<int>> plane(3);
+	std::vector<vector<int>> plane(3);
 
 	for(int i = 0;i<points.size();i++){
 		int plane_no = (points[i]-1)/9; 
 		plane[plane_no].push_back(points[i]);
 	}
 	for(int i=0;i<plane.size();i++){
-		cout << "Plane "<< i+1 << ": ";
+		std::cout << "Plane "<< i+1 << ": ";
 		for(int j=0;j<plane[i].size();j++){
-			cout<<plane[i][j]<<" ";
+			std::cout<<plane[i][j]<<" ";
 		}
-		cout<<endl;
+		std::cout<<endl;
 	}
 
-	vector<int> final_path;
+	std::vector<int> final_path;
 
 	create_graph(1,1,10);
 
-	vector<int> plane0 = find_shortest_permutation(plane[0],0);
+	std::vector<int> plane0 = find_shortest_permutation(plane[0],0);
 
 
 	for(int i =0;i<plane0.size();i++){
@@ -447,7 +481,7 @@ int main()
 // // Reduntant Code Sorry
 	min_imum = INF;
 
-	vector<int> plane1 = find_shortest_permutation(plane[1],next);
+	std::vector<int> plane1 = find_shortest_permutation(plane[1],next);
 	
 
 	for(int i =0;i<plane1.size();i++){
@@ -464,7 +498,7 @@ int main()
 
 	min_imum = INF;
 
-	vector<int> plane2 = find_shortest_permutation(plane[2],next);
+	std::vector<int> plane2 = find_shortest_permutation(plane[2],next);
 
 	for(int i =0;i<plane2.size();i++){
 		final_path.push_back(plane2[i]);
@@ -474,16 +508,16 @@ int main()
 		final_path.push_back(-1*plane2[plane2.size()-1-i]);
 	}
 
-	cout << endl;
-	cout << "Final index of shelf in order: ";
+	std::cout << endl;
+	std::cout << "Final index of shelf in order: ";
 	for(int i=0;i<final_path.size();i++){
-		cout<<final_path[i]<<" ";
+		std::cout<<final_path[i]<<" ";
 	}
 
 	get_waypoints(7.0);
 	calculate_front(6);
-	vector<vector<double>> final_waypoints = convert_vector_to_waypoints(final_path);
-	cout<<endl<<endl<< "Total no of points with plant:" <<final_path.size();
+	std::vector<vector<double>> final_waypoints = convert_vector_to_waypoints(final_path);
+	std::cout<<endl<<endl<< "Total no of points with plant:" <<final_path.size();
 
 	for(int i = 0; i < final_path.size(); i++){
 		if(final_path[i] > 0){
@@ -498,19 +532,19 @@ int main()
 		}
 	}
 
-	cout << endl << endl;
+	std::cout << endl << endl;
 
 	for(int i =0; i<final_waypoints.size(); i++){
-		cout << "Point Coordinate " << i+1 << ": ";
+		std::cout << "Point Coordinate " << i+1 << ": ";
 		for(int j=0; j<final_waypoints[i].size(); j++){
-			cout << " " << final_waypoints[i][j] << " ";
+			std::cout << " " << final_waypoints[i][j] << " ";
 		}
-		cout << endl;
+		std::cout << endl;
 	}
 
-	cout << endl;
+	std::cout << endl;
 
-	// cout << final_waypoints.size();
+	// std::cout << final_waypoints.size();
 	
 	return 0; 
 }

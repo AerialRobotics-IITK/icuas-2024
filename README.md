@@ -53,18 +53,6 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
 - [X] A simple detection function to count the fruits given a centered pic of the fruits (taking into account the variety observed)
 - [ ] Enabling detection, and counting the fruits using camera feed while drone traverses the hardcoded trajectory; count fruits ignoring double counting
 - [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
-- [ ] Improving the detection pipeline by optimizing parameters
-- [ ] Integrating the entire detection pipeline as a single cohesive package
-
-### Trajectory Generation
-- [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
-- [X] Implementing Motion planning given the static occupancy grid / collision geoemtries using OML & PCL
-- [X] Adding a frontend to the implemented planner to take input of multiple waypoints as ``std::vector``
-- [ ] Testing the constraints and remove any hardcoded delays in planner
-- [ ] Integrating the algorithm for generating permuatution of waypoints with the planner
-- [ ] Implementating alternative motion planning approach with only heuristcs
-- [ ] Handling cases of double counting of fruits due to single-sided and double-sided visibility
-
 
 ## Simulation
 
