@@ -30,9 +30,6 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
 
     si = ob::SpaceInformationPtr(new ob::SpaceInformation(space));
 
-    //getting current positions to define local frame
-    ros::spinOnce();
-
     // initializing waypoints
     start->setXYZ(this->curr_x,this->curr_y,this->curr_z);
     
@@ -98,7 +95,7 @@ void planner::plan(void){
     pdef->print(std::cout);
 #endif 
 
-    ob::PlannerStatus solved = o_plan->solve(1);
+    ob::PlannerStatus solved = o_plan->solve(0.5);
     if(solved){
         ROS_INFO("Found Solution:");
 

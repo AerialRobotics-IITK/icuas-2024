@@ -9,7 +9,7 @@ const std::string plant_topic = "/red/plants_beds";
 int main(int argc, char **argv){
     ros::init(argc, argv, "planner");
     ros::NodeHandle nh;
-    ros::Rate r(10);
+    ros::Rate r(50);
 
     planner* planner_object = new planner(nh, r, trajectory_topic, pose_topic, plant_topic);   
     auto plant_positions = planner_object->plant_beds;
@@ -53,7 +53,7 @@ int main(int argc, char **argv){
     positions.push_back({14.0,9.0,6.7});
     //append waypoints here
 #else
-    trajectory_gen* traj_generator = new trajectory_gen(6, 7.5, 2.8, 4, 6, 1.1, plant_positions); //offset values and x,y,z are hardcoded
+    trajectory_gen* traj_generator = new trajectory_gen(6, 7.7, 2.8, 4, 6, 1.35, plant_positions); //offset values and x,y,z are hardcoded
     positions = traj_generator->get_final_waypoints();
 #endif
 

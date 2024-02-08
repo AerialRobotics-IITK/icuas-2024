@@ -121,3 +121,16 @@ windows:
           waitForSimulation
           waitForPlants 
           rostopic echo /red/carrot/pose
+        - |
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          timeEvent
+        - | 
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          waitForPlants
+          rqt_image_view
+
+  

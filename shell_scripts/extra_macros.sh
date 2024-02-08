@@ -14,14 +14,13 @@ waitForCount() {
   echo "Fruit Count generated"
 }
 
-TimeEvent() {
+timeEvent() {
   waitForPlants
   start=`date +%s.%N`
   waitForCount
   end=`date +%s.%N`
 
   runtime=$( echo "($end - $start)" | bc -l) 
-
   runtime=$( printf %d $runtime 2> /dev/null ) 
 
   echo "Elapsed: $(($runtime / 60))min $(($runtime % 60))sec"
