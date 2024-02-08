@@ -1,10 +1,11 @@
 #include "planner/planner.h"
 #define DEBUG 1
 
-planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_) : nh(nh_), r(r_){
+planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_) : nh(nh_), r(r_){
 
     traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 1); 
     pos_sub = nh.subscribe(pose_topic_, 10, &planner::poseCallback, this);
+    plant_sub = nh.subscribe(plant_topic_, 10, &planner::plantCallback, this);
 
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
     shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
@@ -49,6 +50,9 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     o_plan->setProblemDefinition(pdef);
     o_plan->setup();
     
+    r.sleep();
+    ros::spinOnce();
+
     ROS_CYAN_STREAM("Planner Initialized");
 
 #if DEBUG
@@ -88,7 +92,7 @@ void planner::plan(void){
     pdef->print(std::cout);
 #endif 
 
-    ob::PlannerStatus solved = o_plan->solve(4);
+    ob::PlannerStatus solved = o_plan->solve(1);
     if(solved){
         ROS_INFO("Found Solution:");
 
@@ -187,13 +191,28 @@ void planner::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg){
     this->curr_z = poseMsg->pose.position.z;
 }
 
+void planner::plantCallback(const std_msgs::String::ConstPtr& plantMsg){
+#if DEBUG
+    ROS_INFO("Recieved Plant Info");
+#endif
+/*
+1. Tomato: red
+2. Pepper: yellow
+3. Eggplant: purple
+*/
+    std::string data = plantMsg->data;
+    auto res = util::split(data, " ");
+
+    ROS_INFO("Looking for plant: %s!");
+}
+
 double planner::getDistance(double x, double y, double z) {
     return pow(pow(x - this->curr_x, 2) + pow(y - this->curr_y, 2) + pow(z - this->curr_z, 2), 0.5);
 }
 
 void planner::run(std::vector<std::vector<double>> positions){
 
-    std::vector<double> prev_pos = {1,1,1};
+    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z};
     for(auto pos : positions){
         while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.05){
             ROS_INFO("On way to current waypoint (%f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2]);

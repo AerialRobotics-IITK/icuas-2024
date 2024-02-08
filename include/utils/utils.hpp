@@ -32,6 +32,29 @@ namespace util
     }
     return os;
   }
+  
+
+  /*helper functions*/
+  std::pair<std::string,std::vector<int>> split(std::string s, std::string delimiter) {
+      size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+      std::string token;
+      std::vector<std::string> res;
+      std::pair<std::string,std::vector<int>> result;
+      while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+          token = s.substr (pos_start, pos_end - pos_start);
+          pos_start = pos_end + delim_len;
+          res.push_back (token);
+      }
+
+      res.push_back (s.substr (pos_start));
+      std::vector<int> return_vector;
+      for(int i=1;i<res.size();i++){
+          return_vector.push_back(std::stoi(res[i]));
+      }
+      result.first = res[0];
+      result.second = return_vector;
+      return result;
+  }
 } //namespace util 
 
 #define ROS_BLACK_STREAM(x)   ROS_INFO_STREAM(util::BLACK   << x << util::ENDCOLOR)

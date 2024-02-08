@@ -24,6 +24,7 @@
 
 #include <Eigen/Geometry>
 
+#include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 #include <mav_msgs/conversions.h>
 #include <mav_msgs/default_topics.h>
@@ -34,6 +35,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <map>
 
 #include "utils/utils.hpp"
 
@@ -60,6 +63,7 @@ private:
     ros::NodeHandle nh;
     ros::Publisher traj_pub;
     ros::Subscriber pos_sub;
+    ros::Subscriber plant_sub;
     ros::Rate r;
 
     //initalized initial current goals to (1,1,1)
@@ -67,12 +71,15 @@ private:
     double curr_y = 1;
     double curr_z = 1;
 
+    std::vector<int> plant_positions;
+
     ob::OptimizationObjectivePtr getPathLengthObjWithCostToGo(const ob::SpaceInformationPtr);
     bool isStateValid(const ob::State *state);
     void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg);
+    void plantCallback(const std_msgs::String::ConstPtr& plantMsg);
     double getDistance(double x, double y, double z);
 public:
-    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_);
+    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_);
     ~planner();
 
     void plan(void);
