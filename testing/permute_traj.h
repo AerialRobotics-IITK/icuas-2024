@@ -34,14 +34,6 @@ class trajectory_gen{
 
 	public:
 
-		~trajectory_gen(){
-			
-			for(int i=0;i<vertices.size();i++){
-				delete vertices[i];
-			}
-		
-		}		
-			
 		void create_graph(double x, double y,double z){
 
 			struct node* temp_node =  new struct node;
@@ -475,6 +467,7 @@ class trajectory_gen{
 				for(int j=i*3;j<3*(i+1);j++){
 					final_waypoints[j].push_back(final_path[i]);
 				}
+				
 			}
 
 			//Added Code for final_path			
@@ -490,18 +483,7 @@ class trajectory_gen{
 			    final_waypoints[i][2] = final_waypoints[i][2] + z_origin;
 			}
 
-			// Code for middlepoint
-			std::vector<std::vector<double>> middle_waypoints;
-			
-			for(int i=0;i<final_waypoints.size();i++){
-				if(i%3==1){
-					middle_waypoints.push_back(final_waypoints[i]);
-				}
-			}
 
-			final_waypoints = middle_waypoints;
-			// Code for middlepoint
-			
 			for(int i =0; i<final_waypoints.size(); i++){
 				std::cout << "Point Coordinate " << i+1 << ": ";
 				for(int j=0; j<final_waypoints[i].size(); j++){
@@ -510,12 +492,12 @@ class trajectory_gen{
 				std::cout << std::endl;
 			}
 
-
-
 		}
 
 		std::vector<std::vector<double>> get_final_waypoints(){
 			
 			return final_waypoints;
 		}
+
 };
+//trajectory_gen test = trajectory_gen(4, 7, 2.8, 4, 4.5, 1.1, points);

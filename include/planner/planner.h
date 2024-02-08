@@ -68,6 +68,7 @@ private:
     ros::Publisher traj_pub;
     ros::Subscriber pos_sub;
     ros::Subscriber plant_sub;
+    ros::Publisher scan_flag_pub;
     ros::Rate r;
 
     //initalized initial current goals to (1,1,1)
@@ -81,7 +82,7 @@ private:
     void plantCallback(const std_msgs::String::ConstPtr& plantMsg);
     double getDistance(double x, double y, double z);
 public:
-    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_);
+    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_, std::string scan_flag_topic_);
     ~planner();
 
     std::vector<int> plant_beds;

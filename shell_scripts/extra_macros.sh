@@ -8,7 +8,7 @@ waitForPlants() {
 }
 
 waitForCount() {
-  until rostopic list | grep -q "/red/fruit_count"; do
+  until rostopic list | grep -q "/fruit_count"; do
     sleep 1
   done
   echo "Fruit Count generated"

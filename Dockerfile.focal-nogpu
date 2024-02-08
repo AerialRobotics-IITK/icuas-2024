@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -q -y \
     vim \
     libompl-dev \
     ompl-demos \
-    libboost-all-dev
+    libboost-all-dev \
+    bc
     
 # Step 2: Go to the Catkin workspace and clone all needed ROS packages
 WORKDIR $HOME/$CATKIN_WORKSPACE/src

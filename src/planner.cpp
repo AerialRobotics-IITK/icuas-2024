@@ -3,11 +3,13 @@
 #define DEBUG 1
 #define TAKE_YAW_AS_INPUT 1
 
-planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_) : nh(nh_), r(r_){
+planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_, std::string scan_flag_topic_) : nh(nh_), r(r_){
 
-    traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 1); 
+    traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 10);
     pos_sub = nh.subscribe(pose_topic_, 10, &planner::poseCallback, this);
     plant_sub = nh.subscribe(plant_topic_, 10, &planner::plantCallback, this);
+
+    scan_flag_pub = nh.advertise<std_msgs::Int32>(scan_flag_topic_, 10); 
 
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
     shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
@@ -95,7 +97,7 @@ void planner::plan(void){
     pdef->print(std::cout);
 #endif 
 
-    ob::PlannerStatus solved = o_plan->solve(0.5);
+    ob::PlannerStatus solved = o_plan->solve(1);
     if(solved){
         ROS_INFO("Found Solution:");
 
@@ -221,10 +223,13 @@ void planner::run(std::vector<std::vector<double>> positions){
     util::Quaternion quat;
     util::Quaternion prev_quat;
 
+    std_msgs::Int32 scan_flag;
+
     for(auto pos : positions){
         while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.05){
+            scan_flag.data = 1;
             ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
-
+            scan_flag_pub.publish(scan_flag);
             ros::spinOnce();
             r.sleep();
         }
@@ -265,6 +270,9 @@ void planner::run(std::vector<std::vector<double>> positions){
         this->curr_x = pos[0];
         this->curr_y = pos[1];
         this->curr_z = pos[2];
+
+        scan_flag.data = 0;
+        scan_flag_pub.publish(scan_flag);
 
         ros::spinOnce();
         r.sleep();

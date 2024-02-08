@@ -132,5 +132,10 @@ windows:
           waitForSimulation
           waitForPlants
           rqt_image_view
+        - | 
+          waitForRos
+          waitForSysStatus
+          waitForPlants
+          ../../src/get_plant_frames.py
 
   
