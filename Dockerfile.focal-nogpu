@@ -8,8 +8,9 @@ ARG USER=root
 RUN apt-get update && apt-get install -q -y \
     vim \
     libompl-dev \
-    ompl-demos
-
+    ompl-demos \
+    libboost-all-dev
+    
 # Step 2: Go to the Catkin workspace and clone all needed ROS packages
 WORKDIR $HOME/$CATKIN_WORKSPACE/src
 RUN git clone --branch melodic_electromagnet_dev https://github.com/larics/storm_gazebo_ros_magnet.git

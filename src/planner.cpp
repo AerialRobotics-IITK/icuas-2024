@@ -1,5 +1,7 @@
 #include "planner/planner.h"
+
 #define DEBUG 1
+#define TAKE_YAW_AS_INPUT 0
 
 planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_) : nh(nh_), r(r_){
 
@@ -203,7 +205,8 @@ void planner::plantCallback(const std_msgs::String::ConstPtr& plantMsg){
     std::string data = plantMsg->data;
     auto res = util::split(data, " ");
 
-    ROS_INFO("Looking for plant: %s!");
+    this->plant_beds = res.second;
+    ROS_INFO("Looking for plant: %s!", res.first.c_str());
 }
 
 double planner::getDistance(double x, double y, double z) {
@@ -212,22 +215,35 @@ double planner::getDistance(double x, double y, double z) {
 
 void planner::run(std::vector<std::vector<double>> positions){
 
-    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z};
+#if TAKE_YAW_AS_INPUT
+    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z, 0};
+    util::Quaternion quat;
+    util::Quaternion prev_quat;
+
     for(auto pos : positions){
         while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.05){
-            ROS_INFO("On way to current waypoint (%f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2]);
+            ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
 
             ros::spinOnce();
             r.sleep();
         }
 
+        quat = util::rpyToQuaternion(0, 0, pos[3]);
+        prev_quat = util::rpyToQuaternion(0, 0, prev_pos[3]);
+
         ob::ScopedState<ob::SE3StateSpace> goal(space);
         goal->setXYZ(pos[0], pos[1], pos[2]);
-        goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
+        goal->as<ob::SO3StateSpace::StateType>(1)->x = quat.x;
+        goal->as<ob::SO3StateSpace::StateType>(1)->y = quat.y;
+        goal->as<ob::SO3StateSpace::StateType>(1)->z = quat.z;
+        goal->as<ob::SO3StateSpace::StateType>(1)->w = quat.w;
 
         ob::ScopedState<ob::SE3StateSpace> start(space);
         start->setXYZ(prev_pos[0], prev_pos[1], prev_pos[2]);
-        start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
+        start->as<ob::SO3StateSpace::StateType>(1)->x = prev_quat.x;
+        start->as<ob::SO3StateSpace::StateType>(1)->y = prev_quat.y;
+        start->as<ob::SO3StateSpace::StateType>(1)->z = prev_quat.z;
+        start->as<ob::SO3StateSpace::StateType>(1)->w = prev_quat.w;
 
         // clearing the stored solution paths / waypoints and assigning new ones
         pdef->clearSolutionPaths();  
@@ -247,6 +263,7 @@ void planner::run(std::vector<std::vector<double>> positions){
         prev_pos[0] = pos[0];
         prev_pos[1] = pos[1];
         prev_pos[2] = pos[2];
+        prev_pos[3] = pos[3];
 
         this->curr_x = pos[0];
         this->curr_y = pos[1];
@@ -256,6 +273,12 @@ void planner::run(std::vector<std::vector<double>> positions){
         r.sleep();
     }
     ROS_INFO("Reaching last waypoint (%f, %f, %f). Exiting planner!", this->curr_x, this->curr_y, this->curr_z);
+#endif
+
+#if !TAKE_YAW_AS_INPUT
+/*rotation matrix is hardcoded as identity i.e. rpy = (0,0,0)*/
+
+#endif
 }
 
 

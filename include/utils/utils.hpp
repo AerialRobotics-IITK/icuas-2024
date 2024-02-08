@@ -35,7 +35,7 @@ namespace util
   
 
   /*helper functions*/
-  std::pair<std::string,std::vector<int>> split(std::string s, std::string delimiter) {
+  inline std::pair<std::string,std::vector<int>> split(std::string s, std::string delimiter) {
       size_t pos_start = 0, pos_end, delim_len = delimiter.length();
       std::string token;
       std::vector<std::string> res;
@@ -54,6 +54,30 @@ namespace util
       result.first = res[0];
       result.second = return_vector;
       return result;
+  }
+  
+  struct Quaternion {
+      double w, x, y, z;
+  };
+
+  inline Quaternion rpyToQuaternion(double roll, double pitch, double yaw) {
+      Quaternion quat;
+
+      // Calculate half angles
+      double cy = std::cos(yaw * 0.5);
+      double sy = std::sin(yaw * 0.5);
+      double cp = std::cos(pitch * 0.5);
+      double sp = std::sin(pitch * 0.5);
+      double cr = std::cos(roll * 0.5);
+      double sr = std::sin(roll * 0.5);
+
+      // Calculate quaternion elements
+      quat.w = cr * cp * cy + sr * sp * sy;
+      quat.x = sr * cp * cy - cr * sp * sy;
+      quat.y = cr * sp * cy + sr * cp * sy;
+      quat.z = cr * cp * sy - sr * sp * cy;
+
+      return quat;
   }
 } //namespace util 
 

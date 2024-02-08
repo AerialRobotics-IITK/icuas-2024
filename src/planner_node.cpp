@@ -38,6 +38,7 @@ int main(int argc, char **argv){
     //append waypoints here
     
     planner* planner_object = new planner(nh, r, trajectory_topic, pose_topic, plant_topic);   
+    planner_object->plant_beds;
     planner_object->run(positions);
 
     while(ros::ok()){
