@@ -1,4 +1,6 @@
 #include "planner/planner.h"
+#include "planner/permute_traj.h"
+#define HARDCODE_POINTS 0
 
 const std::string trajectory_topic = "/red/tracker/input_trajectory"; //TODO: create an yaml file for the topics and use nh.getparam to retrieve values
 const std::string pose_topic = "/red/carrot/pose";
@@ -9,8 +11,22 @@ int main(int argc, char **argv){
     ros::NodeHandle nh;
     ros::Rate r(10);
 
-    std::vector<std::vector<double>> positions;
+    planner* planner_object = new planner(nh, r, trajectory_topic, pose_topic, plant_topic);   
+    auto plant_positions = planner_object->plant_beds;
 
+    ROS_YELLOW_STREAM("Plant positions:");
+    for(int i = 0; i < 100; i++)
+    {
+        for(auto it : plant_positions){
+            std::cout << it << " ";
+        }
+        std::cout << std::endl;
+    }
+
+
+    /*Defining goals*/
+    std::vector<std::vector<double>> positions;
+#if HARDCODE_POINTS 
     /*hardcoded waypoints for debugging*/
     positions.push_back({8.00,4.50,1.10});
     positions.push_back({8.0,5.00,1.10});
@@ -36,13 +52,17 @@ int main(int argc, char **argv){
     positions.push_back({14.0,8.5,6.7});
     positions.push_back({14.0,9.0,6.7});
     //append waypoints here
-    
-    planner* planner_object = new planner(nh, r, trajectory_topic, pose_topic, plant_topic);   
-    planner_object->plant_beds;
-    planner_object->run(positions);
+#else
+    trajectory_gen* traj_generator = new trajectory_gen(6, 7.5, 2.8, 4, 6, 1.1, plant_positions); //offset values and x,y,z are hardcoded
+    positions = traj_generator->get_final_waypoints();
+#endif
 
+
+    //running planner
+    planner_object->run(positions);
     while(ros::ok()){
         ROS_CYAN_STREAM("Mission Completed!");
-        sleep(100);
+        //wait indefinitely
+        std::promise<void>().get_future().wait();
     }
 }

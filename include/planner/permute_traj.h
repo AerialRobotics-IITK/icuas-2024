@@ -4,18 +4,16 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include <math.h>
 #include <memory>
 
 #define DEBUG 1
 
-namespace trajectory_gen
-{
-	struct node{
-		double x;
-		double y;
-		double z;
-	};
-}
+struct node{
+	double x;
+	double y;
+	double z;
+};
 
 class trajectory_gen{
 	private:
@@ -459,7 +457,7 @@ class trajectory_gen{
 				}
 				else{
 					for(int k = 0; k<3; k++){
-						final_waypoints[(3*i)+k].push_back(180);
+						final_waypoints[(3*i)+k].push_back(M_PI);
 					}
 				}
 			}
@@ -492,3 +490,4 @@ class trajectory_gen{
 		}
 
 };
+//trajectory_gen test = trajectory_gen(4, 7, 2.8, 4, 4.5, 1.1, points);

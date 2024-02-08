@@ -37,6 +37,7 @@
 #include <string>
 #include <algorithm>
 #include <map>
+#include <future>
 
 #include <boost/math/quaternion.hpp>
 #include <boost/math/constants/constants.hpp>
