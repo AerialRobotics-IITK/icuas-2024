@@ -19,8 +19,8 @@ GREEN = (0, 255, 0)
 image_bridge = CvBridge()
 image = None
 blur_kernel_size = 15
-erode_iterations = 7
-dilate_iterations = 60
+erode_iterations = 6
+dilate_iterations = 61
 all_plant_frames = []
 plant_frames = {}
 prev_plant_count = 0
@@ -141,7 +141,6 @@ if __name__ == "__main__":
     position_subscriber = rospy.Subscriber("/red/pose", PoseStamped, getPosition)
     plant_locations = rospy.Subscriber("/red/plants_beds", String, getPlantLocationData)
 
-    fruit_count_pub = rospy.Publisher("/fruit_count", Int32, queue_size=10) 
 
     while plant_location_data_raw_string == None:
         rate.sleep()
@@ -203,6 +202,8 @@ if __name__ == "__main__":
 
     print(fruit_count)
 rate = rospy.Rate(10) # 10hz
+
+fruit_count_pub = rospy.Publisher("/fruit_count", Int32, queue_size=10) 
 
 fruit_count_msg = Int32()
 fruit_count_msg.data = fruit_count
