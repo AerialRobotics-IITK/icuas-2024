@@ -26,6 +26,7 @@
 
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Bool.h>
 #include <mav_msgs/conversions.h>
 #include <mav_msgs/default_topics.h>
 #include <mav_msgs/eigen_mav_msgs.h>
@@ -38,6 +39,7 @@
 #include <algorithm>
 #include <map>
 #include <future>
+#include <unistd.h>
 
 #include <boost/math/quaternion.hpp>
 #include <boost/math/constants/constants.hpp>

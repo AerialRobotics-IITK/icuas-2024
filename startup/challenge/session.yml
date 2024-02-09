@@ -126,16 +126,26 @@ windows:
           waitForSysStatus
           waitForSimulation
           timeEvent
-        - | 
+        - |
           waitForRos
           waitForSysStatus
           waitForSimulation
           waitForPlants
-          rqt_image_view
-        - | 
-          waitForRos
-          waitForSysStatus
-          waitForPlants
           ../../src/get_plant_frames.py
+  - debug:
+      layout:
+      panes:
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants 
+        rostopic echo /scan
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants 
+        rostopic echo /in_trajectory
 
   

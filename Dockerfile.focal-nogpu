@@ -23,7 +23,8 @@ COPY . .
 # Step 3.2: Additional shell scripts
 RUN echo "#Additional shell scripts" >> $HOME/.bashrc
 RUN echo "source /root/${CATKIN_WORKSPACE}/src/icuas24_competition/shell_scripts/extra_macros.sh" >> $HOME/.bashrc
-
+RUN chmod +x /root/${CATKIN_WORKSPACE}/src/icuas24_competition/src/get_plant_frames.py
+ 
 # Step 4: Build the Catkin workspace
 ARG CACHEBUST=1
 RUN catkin build --limit-status-rate 0.2

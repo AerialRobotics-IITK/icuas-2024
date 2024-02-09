@@ -2,6 +2,8 @@
 #include "planner/permute_traj.h"
 #define HARDCODE_POINTS 0
 
+const unsigned int microsecond = 1000000;
+
 const std::string trajectory_topic = "/red/tracker/input_trajectory"; //TODO: create an yaml file for the topics and use nh.getparam to retrieve values
 const std::string pose_topic = "/red/carrot/pose";
 const std::string plant_topic = "/red/plants_beds";
@@ -66,13 +68,14 @@ int main(int argc, char **argv){
     ROS_CYAN_STREAM("Mission Completed!");
 
     ros::Publisher trajectory_flag_pub;
-    trajectory_flag_pub = nh.advertise<std_msgs::Int32>(trajectory_flag_topic, 10);
+    trajectory_flag_pub = nh.advertise<std_msgs::Bool>(trajectory_flag_topic, 10);
 
     std_msgs::Int32 trajectory_flag;
-    trajectory_flag.data = 1;
+    trajectory_flag.data = false;
 
-    ROS_CYAN_STREAM("Started publishing fruit count");
     while(ros::ok()){
+        usleep(2 * microsecond);//sleeps for 2 second
+        ROS_YELLOW_STREAM("Sending trajectory flag");
         trajectory_flag_pub.publish(trajectory_flag); 
         r.sleep();
     }

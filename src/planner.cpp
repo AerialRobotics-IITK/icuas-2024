@@ -9,7 +9,7 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     pos_sub = nh.subscribe(pose_topic_, 10, &planner::poseCallback, this);
     plant_sub = nh.subscribe(plant_topic_, 10, &planner::plantCallback, this);
 
-    scan_flag_pub = nh.advertise<std_msgs::Int32>(scan_flag_topic_, 10); 
+    scan_flag_pub = nh.advertise<std_msgs::Bool>(scan_flag_topic_, 10); 
 
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
     shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
@@ -223,15 +223,21 @@ void planner::run(std::vector<std::vector<double>> positions){
     util::Quaternion quat;
     util::Quaternion prev_quat;
 
-    std_msgs::Int32 scan_flag;
+    std_msgs::Bool scan_flag;
 
     for(auto pos : positions){
-        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.05){
-            scan_flag.data = 1;
+        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.1){
+            scan_flag.data = false;
             ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
             scan_flag_pub.publish(scan_flag);
             ros::spinOnce();
             r.sleep();
+        }
+        
+        int k = 20;
+        while(k--){
+            scan_flag.data = true;
+            scan_flag_pub.publish(scan_flag);
         }
 
         quat = util::rpyToQuaternion(0, 0, pos[3]);
@@ -271,7 +277,7 @@ void planner::run(std::vector<std::vector<double>> positions){
         this->curr_y = pos[1];
         this->curr_z = pos[2];
 
-        scan_flag.data = 0;
+        scan_flag.data = true;
         scan_flag_pub.publish(scan_flag);
 
         ros::spinOnce();
