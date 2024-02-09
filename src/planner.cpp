@@ -12,9 +12,9 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     scan_flag_pub = nh.advertise<std_msgs::Bool>(scan_flag_topic_, 10); 
 
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
-    shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
-    shelfTwo = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
-    shelfThree = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0,20)));
+    shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
+    shelfTwo = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
+    shelfThree = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0,20)));
 
     space = ob::StateSpacePtr(new ob::SE3StateSpace());
 

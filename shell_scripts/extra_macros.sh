@@ -17,12 +17,14 @@ waitForCount() {
 timeEvent() {
   waitForPlants
   start=`date +%s.%N`
+  echo "[INFO] $start : Starting timer!"
+
   waitForCount
   end=`date +%s.%N`
+  echo "[INFO] $end : Ending timer!"
 
   runtime=$( echo "($end - $start)" | bc -l) 
   runtime=$( printf %d $runtime 2> /dev/null ) 
 
-  echo "Elapsed: $(($runtime / 60))min $(($runtime % 60))sec"
-
+  echo "Time elapsed in the entire mission : $(($runtime / 60))min $(($runtime % 60))sec"
 }
