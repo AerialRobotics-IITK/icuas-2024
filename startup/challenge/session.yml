@@ -147,5 +147,15 @@ windows:
         waitForSimulation
         waitForPlants 
         rostopic echo /in_trajectory
+  - rosbag_record:
+      layout:
+      panes:
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants
+        rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory
+
 
   

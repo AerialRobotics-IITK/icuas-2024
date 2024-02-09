@@ -6,7 +6,7 @@ from datetime import date
 from cv_bridge import CvBridge
 from std_msgs.msg import Bool
 from std_msgs.msg import String
-from std_msgs.msg import Int32 
+from std_msgs.msg import Int32
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import PoseStamped
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     position_subscriber = rospy.Subscriber("/red/pose", PoseStamped, getPosition)
     plant_locations = rospy.Subscriber("/red/plants_beds", String, getPlantLocationData)
 
-    fruit_count_pub = rospy.Publisher("/fruit_count", String, queue_size=10) 
+    fruit_count_pub = rospy.Publisher("/fruit_count", Int32, queue_size=10) 
 
     while plant_location_data_raw_string == None:
         rate.sleep()
@@ -202,9 +202,10 @@ if __name__ == "__main__":
     fruit_count = result2.main(plant_frames_with_indexes, plant_type)
 
     print(fruit_count)
-
 rate = rospy.Rate(10) # 10hz
+
+fruit_count_msg = Int32()
+fruit_count_msg.data = fruit_count
 while not rospy.is_shutdown():
-    fruit_count_msg = fruit_count
-    fruit_count_pub.publish(fruit_count)
+    fruit_count_pub.publish(fruit_count_msg)
     rate.sleep()
