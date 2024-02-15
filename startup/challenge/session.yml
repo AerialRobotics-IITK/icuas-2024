@@ -157,7 +157,8 @@ windows:
         waitForSysStatus
         waitForSimulation
         waitForPlants
-        echo "To sotre necessary topics in rosbag: rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory"
+        echo "To store necessary topics in rosbag: rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory"
+        rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory
 
 
   

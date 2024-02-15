@@ -29,8 +29,8 @@ plant_type = None
 plant_shelf_indexes = None
 square_tolerance = 1
 y_offset_percentage = -0.1
-y_increase_value = 0.1
-x_increase_value = 0.1
+y_increase_value = 0.2
+x_increase_value = 0.2
 
 plant_center_frame_position = {
     1: [4, 6, 1.1],

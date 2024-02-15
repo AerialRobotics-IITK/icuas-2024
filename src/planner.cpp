@@ -28,7 +28,7 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     bounds.setHigh(0,30);        
     bounds.setLow(1,0); //bounds for y-axis
     bounds.setHigh(1,30);
-    bounds.setLow(2, 1); //bounds for z-axis
+    bounds.setLow(2, 0.85); //bounds for z-axis
     bounds.setHigh(2,10);
     space->as<ob::SE3StateSpace>()->setBounds(bounds);
 
