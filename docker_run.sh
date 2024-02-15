@@ -35,6 +35,7 @@ do
 
 done
 
+distro="focal-nogpu" #default configuration
 echo "Running in $distro"
 
 # Check if there is an already running container with the same distro

@@ -70,9 +70,9 @@ windows:
           roslaunch icuas24_competition spawn_plant.launch name:=plant38 model_name:=plant x:=10.0 y:=21.0 z:=6.699999999999999 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant39 model_name:=plant x:=16.0 y:=6.0 z:=3.9 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant40 model_name:=eggplant_3 x:=16.0 y:=4.5 z:=3.9 yaw:=-1.5707
-          rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Eggplant 4 7 13 18 20"
+          rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Tomato 5 17 22 25 27"
+        #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Eggplant 4 7 13 18 20"
         #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Pepper 10 11 14 21 23 24"
-        #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Tomato 5 17 22 25 27"
   - arm&takeof:
       layout: tiled
       panes:

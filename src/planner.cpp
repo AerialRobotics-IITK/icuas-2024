@@ -299,7 +299,7 @@ void planner::run(std::vector<std::vector<double>> positions){
         this->curr_y = pos[1];
         this->curr_z = pos[2];
 
-        scan_flag.data = true;
+        scan_flag.data = false;
         scan_flag_pub.publish(scan_flag);
 
         ros::spinOnce();
