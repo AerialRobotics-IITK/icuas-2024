@@ -8,8 +8,10 @@ ARG USER=root
 RUN apt-get update && apt-get install -q -y \
     vim \
     libompl-dev \
-    ompl-demos
-
+    ompl-demos \
+    libboost-all-dev \
+    bc
+    
 # Step 2: Go to the Catkin workspace and clone all needed ROS packages
 WORKDIR $HOME/$CATKIN_WORKSPACE/src
 RUN git clone --branch melodic_electromagnet_dev https://github.com/larics/storm_gazebo_ros_magnet.git
@@ -21,7 +23,8 @@ COPY . .
 # Step 3.2: Additional shell scripts
 RUN echo "#Additional shell scripts" >> $HOME/.bashrc
 RUN echo "source /root/${CATKIN_WORKSPACE}/src/icuas24_competition/shell_scripts/extra_macros.sh" >> $HOME/.bashrc
-
+RUN chmod +x /root/${CATKIN_WORKSPACE}/src/icuas24_competition/src/get_plant_frames.py
+ 
 # Step 4: Build the Catkin workspace
 ARG CACHEBUST=1
 RUN catkin build --limit-status-rate 0.2

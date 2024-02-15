@@ -9,6 +9,8 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh; 
   ros::Rate r(10);
 
+  //harcoded trajectory to traverse all shelves
+  /*
   std::vector<WaypointWithTime> waypoints{
       WaypointWithTime(1, 1, 1, 2, 0),
       WaypointWithTime(30, 1, 24, 2, 0),
@@ -58,6 +60,12 @@ int main(int argc, char** argv) {
       WaypointWithTime(30,19,1,2,M_PI),
 
   };
+  */
+
+  std::vector<WaypointWithTime> waypoints{
+      WaypointWithTime(1, 1, 1, 1, 0)
+  };
+
   
   WaypointPublisher publisher(nh, r, trajectory_topic, position_topic, count_topic, waypoints);
   publisher.run();

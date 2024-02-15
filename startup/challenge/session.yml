@@ -70,7 +70,7 @@ windows:
           roslaunch icuas24_competition spawn_plant.launch name:=plant38 model_name:=plant x:=10.0 y:=21.0 z:=6.699999999999999 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant39 model_name:=plant x:=16.0 y:=6.0 z:=3.9 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant40 model_name:=eggplant_3 x:=16.0 y:=4.5 z:=3.9 yaw:=-1.5707
-          rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Pepper 10 11 14 21 23 24"
+          rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Eggplant 1 6 13 15 17 19 25"
   - arm&takeof:
       layout: tiled
       panes:
@@ -83,7 +83,7 @@ windows:
           waitForRos
           waitForSysStatus
           waitForSimulation
-          rosrun ardupilot_gazebo automatic_takeoff.sh 2 /$UAV_NAMESPACE/odometry
+          rosrun ardupilot_gazebo automatic_takeoff.sh 1 /$UAV_NAMESPACE/odometry
           sleep 5
           rostopic pub --latch /$UAV_NAMESPACE/challenge_started std_msgs/Bool True
   - trajectory:
@@ -121,3 +121,41 @@ windows:
           waitForSimulation
           waitForPlants 
           rostopic echo /red/carrot/pose
+        - |
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          timeEvent
+        - |
+          waitForRos
+          waitForSysStatus
+          waitForSimulation
+          waitForPlants
+          ../../src/get_plant_frames.py
+  - debug:
+      layout:
+      panes:
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants 
+        rostopic echo /scan
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants 
+        rostopic echo /in_trajectory
+  - rosbag_record:
+      layout:
+      panes:
+      - |
+        waitForRos
+        waitForSysStatus
+        waitForSimulation
+        waitForPlants
+        echo "To sotre necessary topics in rosbag: rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory"
+
+
+  

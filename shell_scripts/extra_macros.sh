@@ -8,25 +8,23 @@ waitForPlants() {
 }
 
 waitForCount() {
-  until rostopic list | grep -q "/red/fruit_count"; do
+  until rostopic list | grep -q "/fruit_count"; do
     sleep 1
   done
   echo "Fruit Count generated"
 }
 
+timeEvent() {
+  waitForPlants
+  start=`date +%s.%N`
+  echo "[INFO] $start : Starting timer!"
 
-TimeEvent() {
+  waitForCount
+  end=`date +%s.%N`
+  echo "[INFO] $end : Ending timer!"
 
-waitForPlants
-start=`date +%s.%N`
-waitForCount
-end=`date +%s.%N`
+  runtime=$( echo "($end - $start)" | bc -l) 
+  runtime=$( printf %d $runtime 2> /dev/null ) 
 
-runtime=$( echo "($end - $start)" | bc -l) 
-
-runtime=$( printf %d $runtime 2> /dev/null ) 
-
-# echo 
-echo "Elapsed: $(($runtime / 60))min $(($runtime % 60))sec"
-
+  echo "Time elapsed in the entire mission : $(($runtime / 60))min $(($runtime % 60))sec"
 }

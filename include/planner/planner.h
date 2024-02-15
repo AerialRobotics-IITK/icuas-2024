@@ -24,7 +24,9 @@
 
 #include <Eigen/Geometry>
 
+#include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Bool.h>
 #include <mav_msgs/conversions.h>
 #include <mav_msgs/default_topics.h>
 #include <mav_msgs/eigen_mav_msgs.h>
@@ -34,6 +36,13 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <map>
+#include <future>
+#include <unistd.h>
+
+#include <boost/math/quaternion.hpp>
+#include <boost/math/constants/constants.hpp>
 
 #include "utils/utils.hpp"
 
@@ -60,6 +69,8 @@ private:
     ros::NodeHandle nh;
     ros::Publisher traj_pub;
     ros::Subscriber pos_sub;
+    ros::Subscriber plant_sub;
+    ros::Publisher scan_flag_pub;
     ros::Rate r;
 
     //initalized initial current goals to (1,1,1)
@@ -70,10 +81,13 @@ private:
     ob::OptimizationObjectivePtr getPathLengthObjWithCostToGo(const ob::SpaceInformationPtr);
     bool isStateValid(const ob::State *state);
     void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg);
+    void plantCallback(const std_msgs::String::ConstPtr& plantMsg);
     double getDistance(double x, double y, double z);
 public:
-    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_);
+    planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_, std::string scan_flag_topic_);
     ~planner();
+
+    std::vector<int> plant_beds;
 
     void plan(void);
     void run(std::vector<std::vector<double>> positions);

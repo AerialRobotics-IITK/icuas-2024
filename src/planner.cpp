@@ -1,15 +1,20 @@
 #include "planner/planner.h"
+
 #define DEBUG 1
+#define TAKE_YAW_AS_INPUT 1
 
-planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_) : nh(nh_), r(r_){
+planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_, std::string scan_flag_topic_) : nh(nh_), r(r_){
 
-    traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 1); 
+    traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 10);
     pos_sub = nh.subscribe(pose_topic_, 10, &planner::poseCallback, this);
+    plant_sub = nh.subscribe(plant_topic_, 10, &planner::plantCallback, this);
+
+    scan_flag_pub = nh.advertise<std_msgs::Bool>(scan_flag_topic_, 10); 
 
     aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
-    shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
-    shelfTwo = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0, 20)));
-    shelfThree = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.0, 21.0,20)));
+    shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
+    shelfTwo = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
+    shelfThree = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0,20)));
 
     space = ob::StateSpacePtr(new ob::SE3StateSpace());
 
@@ -28,7 +33,8 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     si = ob::SpaceInformationPtr(new ob::SpaceInformation(space));
 
     // initializing waypoints
-    start->setXYZ(1,1,1);
+    start->setXYZ(this->curr_x,this->curr_y,this->curr_z);
+    
     start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
     goal->setXYZ(1,1,1);
     goal->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
@@ -49,6 +55,9 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     o_plan->setProblemDefinition(pdef);
     o_plan->setup();
     
+    r.sleep();
+    ros::spinOnce();
+
     ROS_CYAN_STREAM("Planner Initialized");
 
 #if DEBUG
@@ -88,7 +97,7 @@ void planner::plan(void){
     pdef->print(std::cout);
 #endif 
 
-    ob::PlannerStatus solved = o_plan->solve(4);
+    ob::PlannerStatus solved = o_plan->solve(1.5);
     if(solved){
         ROS_INFO("Found Solution:");
 
@@ -187,15 +196,101 @@ void planner::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg){
     this->curr_z = poseMsg->pose.position.z;
 }
 
+void planner::plantCallback(const std_msgs::String::ConstPtr& plantMsg){
+#if DEBUG
+    ROS_INFO("Recieved Plant Info");
+#endif
+/*
+1. Tomato: red
+2. Pepper: yellow
+3. Eggplant: purple
+*/
+    std::string data = plantMsg->data;
+    auto res = util::split(data, " ");
+
+    this->plant_beds = res.second;
+    ROS_INFO("Looking for plant: %s!", res.first.c_str());
+}
+
 double planner::getDistance(double x, double y, double z) {
     return pow(pow(x - this->curr_x, 2) + pow(y - this->curr_y, 2) + pow(z - this->curr_z, 2), 0.5);
 }
 
 void planner::run(std::vector<std::vector<double>> positions){
 
-    std::vector<double> prev_pos = {1,1,1};
+#if TAKE_YAW_AS_INPUT
+    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z, 0};
+    util::Quaternion quat;
+    util::Quaternion prev_quat;
+
+    std_msgs::Bool scan_flag;
+
     for(auto pos : positions){
-        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.05){
+        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.1){
+            scan_flag.data = false;
+            ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
+            scan_flag_pub.publish(scan_flag);
+            ros::spinOnce();
+            r.sleep();
+        }
+        
+        int k = 20;
+        while(k--){
+            scan_flag.data = true;
+            scan_flag_pub.publish(scan_flag);
+        }
+
+        quat = util::rpyToQuaternion(0, 0, pos[3]);
+        prev_quat = util::rpyToQuaternion(0, 0, prev_pos[3]);
+
+        ob::ScopedState<ob::SE3StateSpace> goal(space);
+        goal->setXYZ(pos[0], pos[1], pos[2]);
+        goal->as<ob::SO3StateSpace::StateType>(1)->x = quat.x;
+        goal->as<ob::SO3StateSpace::StateType>(1)->y = quat.y;
+        goal->as<ob::SO3StateSpace::StateType>(1)->z = quat.z;
+        goal->as<ob::SO3StateSpace::StateType>(1)->w = quat.w;
+
+        ob::ScopedState<ob::SE3StateSpace> start(space);
+        start->setXYZ(prev_pos[0], prev_pos[1], prev_pos[2]);
+        start->as<ob::SO3StateSpace::StateType>(1)->x = prev_quat.x;
+        start->as<ob::SO3StateSpace::StateType>(1)->y = prev_quat.y;
+        start->as<ob::SO3StateSpace::StateType>(1)->z = prev_quat.z;
+        start->as<ob::SO3StateSpace::StateType>(1)->w = prev_quat.w;
+
+        // clearing the stored solution paths / waypoints and assigning new ones
+        pdef->clearSolutionPaths();  
+
+        pdef->clearStartStates();
+        pdef->addStartState(start);
+
+        pdef->clearGoal();
+        pdef->setGoalState(goal);
+
+        plan();
+
+        prev_pos[0] = pos[0];
+        prev_pos[1] = pos[1];
+        prev_pos[2] = pos[2];
+        prev_pos[3] = pos[3];
+
+        this->curr_x = pos[0];
+        this->curr_y = pos[1];
+        this->curr_z = pos[2];
+
+        scan_flag.data = true;
+        scan_flag_pub.publish(scan_flag);
+
+        ros::spinOnce();
+        r.sleep();
+    }
+    ROS_INFO("Reaching last waypoint (%f, %f, %f). Exiting planner!", this->curr_x, this->curr_y, this->curr_z);
+
+#else 
+/*rotation matrix is hardcoded as identity i.e. rpy = (0,0,0)*/
+
+    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z};
+    for(auto pos : positions){
+        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.1){
             ROS_INFO("On way to current waypoint (%f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2]);
 
             ros::spinOnce();
@@ -221,10 +316,6 @@ void planner::run(std::vector<std::vector<double>> positions){
 
         plan();
 
-        //wait at that position for a while 
-        //TODO: instead of hardcoding delay for of reaching the desired waypoint, subscribe the pose topic; and switch to next waypoint as in when it reaches the current one
-        // sleep(10);
-
         prev_pos[0] = pos[0];
         prev_pos[1] = pos[1];
         prev_pos[2] = pos[2];
@@ -237,6 +328,8 @@ void planner::run(std::vector<std::vector<double>> positions){
         r.sleep();
     }
     ROS_INFO("Reaching last waypoint (%f, %f, %f). Exiting planner!", this->curr_x, this->curr_y, this->curr_z);
+#endif
+
 }
 
 

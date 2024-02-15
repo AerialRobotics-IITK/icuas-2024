@@ -107,6 +107,8 @@ CATKIN_DEPENDS
     std_msgs
 )
 
+find_package(Boost REQUIRED COMPONENTS system)
+
 ###########
 ## Build ##
 ###########
@@ -116,6 +118,7 @@ CATKIN_DEPENDS
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 link_directories(
     lib
@@ -134,13 +137,13 @@ link_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_intermediate src/intermediate.cpp src/intermediate_node.cpp)
-target_link_libraries(${PROJECT_NAME}_intermediate ${catkin_LIBRARIES} fcl)
+target_link_libraries(${PROJECT_NAME}_intermediate ${catkin_LIBRARIES} ${Boost_LIBRARIES} fcl)
 add_dependencies(${PROJECT_NAME}_intermediate 
   ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 add_executable(${PROJECT_NAME}_planner src/planner.cpp src/planner_node.cpp)
-target_link_libraries(${PROJECT_NAME}_planner ${catkin_LIBRARIES} fcl ompl)
+target_link_libraries(${PROJECT_NAME}_planner ${catkin_LIBRARIES}  ${Boost_LIBRARIES} fcl ompl)
 add_dependencies(${PROJECT_NAME}_planner 
   ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS})

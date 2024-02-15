@@ -32,6 +32,53 @@ namespace util
     }
     return os;
   }
+  
+
+  /*helper functions*/
+  inline std::pair<std::string,std::vector<int>> split(std::string s, std::string delimiter) {
+      size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+      std::string token;
+      std::vector<std::string> res;
+      std::pair<std::string,std::vector<int>> result;
+      while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+          token = s.substr (pos_start, pos_end - pos_start);
+          pos_start = pos_end + delim_len;
+          res.push_back (token);
+      }
+
+      res.push_back (s.substr (pos_start));
+      std::vector<int> return_vector;
+      for(int i=1;i<res.size();i++){
+          return_vector.push_back(std::stoi(res[i]));
+      }
+      result.first = res[0];
+      result.second = return_vector;
+      return result;
+  }
+  
+  struct Quaternion {
+      double w, x, y, z;
+  };
+
+  inline Quaternion rpyToQuaternion(double roll, double pitch, double yaw) {
+      Quaternion quat;
+
+      // Calculate half angles
+      double cy = std::cos(yaw * 0.5);
+      double sy = std::sin(yaw * 0.5);
+      double cp = std::cos(pitch * 0.5);
+      double sp = std::sin(pitch * 0.5);
+      double cr = std::cos(roll * 0.5);
+      double sr = std::sin(roll * 0.5);
+
+      // Calculate quaternion elements
+      quat.w = cr * cp * cy + sr * sp * sy;
+      quat.x = sr * cp * cy - cr * sp * sy;
+      quat.y = cr * sp * cy + sr * cp * sy;
+      quat.z = cr * cp * sy - sr * sp * cy;
+
+      return quat;
+  }
 } //namespace util 
 
 #define ROS_BLACK_STREAM(x)   ROS_INFO_STREAM(util::BLACK   << x << util::ENDCOLOR)
