@@ -97,7 +97,7 @@ void planner::plan(void){
     pdef->print(std::cout);
 #endif 
 
-    ob::PlannerStatus solved = o_plan->solve(1);
+    ob::PlannerStatus solved = o_plan->solve(1.5);
     if(solved){
         ROS_INFO("Found Solution:");
 
