@@ -227,7 +227,7 @@ class trajectory_gen{
 		} 
 
 		std::vector<int> find_shortest_permutation(std::vector<int> points, int start_location){
-				std::vector<int> min_vec;
+				std::vector<int> min_vec = points;
 				if(points.size()>2){
 					permute(points,start_location);
 					min_vec = minimum_vector;
@@ -351,6 +351,13 @@ class trajectory_gen{
 			return final_waypoints;
 		};
 
+		void print_vector(std::vector<int> v){
+			for(int i=0;i<v.size();i++){
+				std::cout<<v[i]<<" ";
+			}std::cout<<std::endl;
+
+		}
+
 		trajectory_gen(double x, double y, double z, double x_offset, double y_offset, double z_offset, std::vector<int> Points){
 			points = Points;
 			
@@ -363,20 +370,23 @@ class trajectory_gen{
 				plane[plane_no].push_back(points[i]);
 			}
 
-			// for(int i=0;i<plane.size();i++){
-			// 	std::cout << "Plane "<< i+1 << ": ";
-			// 	for(int j=0;j<plane[i].size();j++){
-			// 		std::cout<<plane[i][j]<<" ";
-			// 	}
-			// 	std::cout<<std::endl;
-			// }
+			for(int i=0;i<plane.size();i++){
+				std::cout << "Plane "<< i+1 << ": ";
+				for(int j=0;j<plane[i].size();j++){
+					std::cout<<plane[i][j]<<" ";
+				}
+				std::cout<<std::endl;
+			}
+
 
 			create_graph(x,y,z);
 			
-			if(plane[0].empty()){
+			if(plane[0].empty()){	
 			}
 
 			std::vector<int> plane0 = find_shortest_permutation(plane[0],0);
+
+			print_vector(plane0);
 
 			for(int i =0;i<plane0.size();i++){
 				final_path.push_back(plane0[i]);
@@ -518,4 +528,5 @@ class trajectory_gen{
 			
 			return final_waypoints;
 		}
+
 };
