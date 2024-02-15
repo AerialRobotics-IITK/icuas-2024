@@ -58,11 +58,10 @@ int main(int argc, char **argv){
     positions.push_back({14.0,9.0,6.7});
     //append waypoints here
 #else
-    trajectory_gen* traj_generator = new trajectory_gen(6, 7.7, 2.8, 4, 6, 1.35, plant_positions); //offset values and x,y,z are hardcoded
+    trajectory_gen* traj_generator = new trajectory_gen(6, 7.7, 2.8, 4, 5.8, 1.35, plant_positions); //offset values and x,y,z are hardcoded
     positions = traj_generator->get_final_waypoints();
-    
+    positions.push_back({1, 1, 1, 3.1452});
 #endif
-
     //defining home traj msg
     ros::Publisher wp_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic, 10);
 
@@ -82,6 +81,7 @@ int main(int argc, char **argv){
 
     /*start wp to topra*/
     wp_pub.publish(home_msg);  
+    usleep(2 * microsecond);
 
     //running planner
     planner_object->run(positions);
@@ -93,8 +93,7 @@ int main(int argc, char **argv){
     std_msgs::Int32 trajectory_flag;
     trajectory_flag.data = false;
 
-    /*end wp to topra*/
-    wp_pub.publish(home_msg);  
+    usleep(2 * microsecond);
 
     while(ros::ok()){
         usleep(2 * microsecond);//sleeps for 2 second

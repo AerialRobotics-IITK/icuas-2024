@@ -3,6 +3,8 @@
 #define DEBUG 1
 #define TAKE_YAW_AS_INPUT 1
 
+const unsigned int microsecond = 1000000;
+
 planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic_, std::string pose_topic_, std::string plant_topic_, std::string scan_flag_topic_) : nh(nh_), r(r_){
 
     traj_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic_, 10);
@@ -11,7 +13,7 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
 
     scan_flag_pub = nh.advertise<std_msgs::Bool>(scan_flag_topic_, 10); 
 
-    aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.5, 1.5, 1.5)));
+    aircraftObject = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(1.05, 1.05, 0.5)));
     shelfOne = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
     shelfTwo = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0, 20)));
     shelfThree = std::make_shared<fcl::CollisionObject<double>>(std::shared_ptr<fcl::CollisionGeometry<double>>(new fcl::Box<double>(2.3, 21.0,20)));
@@ -26,14 +28,14 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     bounds.setHigh(0,30);        
     bounds.setLow(1,0); //bounds for y-axis
     bounds.setHigh(1,30);
-    bounds.setLow(2, 0); //bounds for z-axis
+    bounds.setLow(2, 0.4); //bounds for z-axis
     bounds.setHigh(2,10);
     space->as<ob::SE3StateSpace>()->setBounds(bounds);
 
     si = ob::SpaceInformationPtr(new ob::SpaceInformation(space));
 
     // initializing waypoints
-    start->setXYZ(this->curr_x,this->curr_y,this->curr_z);
+    start->setXYZ(1,1,1);
     
     start->as<ob::SO3StateSpace::StateType>(1)->setIdentity();
     goal->setXYZ(1,1,1);
@@ -187,6 +189,23 @@ ob::OptimizationObjectivePtr planner::getPathLengthObjWithCostToGo(const ob::Spa
     return obj;
 }
 
+
+double quaternion_to_yaw(double w, double x, double y, double z) {
+    // Convert quaternion to Euler angles (roll, pitch, yaw)
+    double roll = std::atan2(2 * (w*x + y*z), 1 - 2 * (x*x + y*y));
+    double pitch = std::asin(2 * (w*y - z*x));
+    double yaw = std::atan2(2 * (w*z + x*y), 1 - 2 * (y*y + z*z));
+
+    // Ensure yaw is within [-pi, pi]
+    if (yaw < -M_PI) {
+        yaw += 2 * M_PI;
+    } else if (yaw > M_PI) {
+        yaw -= 2 * M_PI;
+    }
+
+    return yaw;
+}
+
 void planner::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg){
 #if DEBUG
     ROS_INFO("Recieved Pose Info");
@@ -194,6 +213,7 @@ void planner::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& poseMsg){
     this->curr_x = poseMsg->pose.position.x;
     this->curr_y = poseMsg->pose.position.y;
     this->curr_z = poseMsg->pose.position.z;
+    this->curr_yaw  = quaternion_to_yaw(poseMsg->pose.orientation.w, poseMsg->pose.orientation.x, poseMsg->pose.orientation.y, poseMsg->pose.orientation.z);
 }
 
 void planner::plantCallback(const std_msgs::String::ConstPtr& plantMsg){
@@ -226,19 +246,21 @@ void planner::run(std::vector<std::vector<double>> positions){
     std_msgs::Bool scan_flag;
 
     for(auto pos : positions){
-        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.1){
+        while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.07 || abs(abs(prev_pos[3]) - abs(this->curr_yaw)) > 0.07){
             scan_flag.data = false;
-            ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
+            ROS_INFO("On way to current waypoint (%f, %f, %f, %f); from previous waypoint (%f, %f, %f, %f)", pos[0], pos[1], pos[2], pos[3], prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
             scan_flag_pub.publish(scan_flag);
             ros::spinOnce();
             r.sleep();
         }
-        
-        int k = 20;
+
+        int k = 100;
         while(k--){
             scan_flag.data = true;
             scan_flag_pub.publish(scan_flag);
         }
+
+        usleep(2 * microsecond);
 
         quat = util::rpyToQuaternion(0, 0, pos[3]);
         prev_quat = util::rpyToQuaternion(0, 0, prev_pos[3]);

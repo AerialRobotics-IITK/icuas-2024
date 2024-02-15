@@ -92,6 +92,7 @@ private:
     double curr_x = 1;
     double curr_y = 1;
     double curr_z = 1;
+    double curr_yaw = 0;
 
     ob::OptimizationObjectivePtr getPathLengthObjWithCostToGo(const ob::SpaceInformationPtr);
     bool isStateValid(const ob::State *state);
