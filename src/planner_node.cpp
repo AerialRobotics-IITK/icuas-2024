@@ -60,8 +60,28 @@ int main(int argc, char **argv){
 #else
     trajectory_gen* traj_generator = new trajectory_gen(6, 7.7, 2.8, 4, 6, 1.35, plant_positions); //offset values and x,y,z are hardcoded
     positions = traj_generator->get_final_waypoints();
+    
 #endif
 
+    //defining home traj msg
+    ros::Publisher wp_pub = nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(trajectory_topic, 10);
+
+    trajectory_msgs::MultiDOFJointTrajectoryPtr home_msg(new trajectory_msgs::MultiDOFJointTrajectory);
+    home_msg->header.stamp = ros::Time::now();
+    home_msg->points.resize(1);
+    home_msg->joint_names.push_back("base_link");
+
+    WaypointWithTime home_wp = WaypointWithTime(8, 1, 1, 1, 0);
+
+    mav_msgs::EigenTrajectoryPoint trajectory_point;
+    trajectory_point.position_W = home_wp.position;
+    trajectory_point.setFromYaw(home_wp.yaw);
+    trajectory_point.time_from_start_ns = 0;
+    mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &home_msg->points[0]);
+
+
+    /*start wp to topra*/
+    wp_pub.publish(home_msg);  
 
     //running planner
     planner_object->run(positions);
@@ -73,9 +93,12 @@ int main(int argc, char **argv){
     std_msgs::Int32 trajectory_flag;
     trajectory_flag.data = false;
 
+    /*end wp to topra*/
+    wp_pub.publish(home_msg);  
+
     while(ros::ok()){
         usleep(2 * microsecond);//sleeps for 2 second
-        ROS_YELLOW_STREAM("Sending trajectory flag");
+        ROS_YELLOW_STREAM("Sending end trajectory flag");
         trajectory_flag_pub.publish(trajectory_flag); 
         r.sleep();
     }

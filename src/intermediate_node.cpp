@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
   */
 
   std::vector<WaypointWithTime> waypoints{
-      WaypointWithTime(1, 1, 1, 1, 0)
+      WaypointWithTime(8, 1, 1, 1, 0)
   };
 
   

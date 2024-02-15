@@ -51,6 +51,21 @@ namespace ob = ompl::base;
 namespace og = ompl::geometric;
 constexpr int64_t kNanoSecondsInSecond = 1000000000;
 
+struct WaypointWithTime {
+ public:
+  Eigen::Vector3d position;
+  double yaw;
+  double waiting_time;
+
+  WaypointWithTime()
+      : waiting_time(0), yaw(0.0) {
+  }
+
+  WaypointWithTime(double t, float x, float y, float z, float _yaw)
+      : position(x, y, z), yaw(_yaw), waiting_time(t) {
+  }
+};
+
 class planner{
 private:
     ob::StateSpacePtr space;
