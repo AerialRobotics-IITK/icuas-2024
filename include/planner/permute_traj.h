@@ -457,7 +457,7 @@ class trajectory_gen{
 			std::cout << "Final index of shelf in order: ";
 
 			get_waypoints(1.5);
-			calculate_front(3);
+			calculate_front(3.2);
 			final_waypoints = convert_vector_to_waypoints(final_path);
 			
 			for(int i = 0;i<final_path.size();i++){
