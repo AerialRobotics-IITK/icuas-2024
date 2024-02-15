@@ -129,6 +129,9 @@ def count(src):
 def process_image(image):
     img = image
     non_white_pixels = np.column_stack(np.where(np.all(img > [235, 235, 235], axis=-1)))
+    if non_white_pixels.size == 0:
+        return 0, 0, img.shape[1], img.shape[0], count(img), img  
+
 
     leftmost = non_white_pixels[:, 1].min()
     topmost = non_white_pixels[:, 0].min()
