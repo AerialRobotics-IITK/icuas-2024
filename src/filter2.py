@@ -6,6 +6,7 @@ import time
 import math
 from cv_bridge import CvBridge
 from itertools import chain
+import os
 
 #import dictionary_msg
 #globally declare a variable
@@ -128,7 +129,13 @@ def count(src):
 
 def process_image(image):
     img = image
-    non_white_pixels = np.column_stack(np.where(np.all(img == [255, 255, 255], axis=-1)))
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresholded = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)
+    kernel = np.ones((3,3), np.uint8)
+    eroded_image = cv2.erode(thresholded, kernel, iterations=5)
+    kernel = np.ones((3,3), np.uint8)
+    dilated_image = cv2.dilate(eroded_image, kernel, iterations=3)
+    non_white_pixels = np.column_stack(np.where(dilated_image == 255))  # Adjust condition as needed
     if non_white_pixels.size == 0:
         return 0, 0, img.shape[1], img.shape[0], count(img), img  
 
@@ -139,6 +146,11 @@ def process_image(image):
     bottommost = non_white_pixels[:, 0].max()
     
     image = img[topmost:bottommost + 1, leftmost:rightmost + 1]
+    if not os.path.exists("images"):
+        os.makedirs("images")
+    if not os.path.exists(f"images/{current_plant}/"):
+        os.makedirs(f"images/{current_plant}/")
+    cv2.imwrite('./images'+f'/{current_plant}'+ f'/{yaw}.jpg',img=image)
     hi = []
     hi=count(image)
     return leftmost, topmost, rightmost, bottommost, hi, image

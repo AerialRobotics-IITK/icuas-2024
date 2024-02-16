@@ -20,7 +20,7 @@ image_bridge = CvBridge()
 image = None
 blur_kernel_size = 15
 erode_iterations = 6
-dilate_iterations = 61
+dilate_iterations = 60
 all_plant_frames = []
 plant_frames = {}
 prev_plant_count = 0
@@ -30,7 +30,8 @@ plant_shelf_indexes = None
 square_tolerance = 1
 y_offset_percentage = -0.1
 y_increase_value = 0.1
-x_increase_value = 0.05
+x_increase_value = 0.02
+distance_from_shelf = 4.5
 
 plant_center_frame_position = {
     1: [4, 6, 1.1],
@@ -79,8 +80,8 @@ def quaternionToRPY(quaternion):
     pitch = numpy.arcsin(2 * (w * y - z * x))
     yaw = numpy.arctan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
     return roll, pitch, yaw
-def dist4D(position_1, position_2):
-    return math.sqrt((position_1[0]-position_2[0])**2+(position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2+(position_1[3]-position_2[3])**2)
+def dist(position_1, position_2):
+    return math.sqrt((position_1[0]-position_2[0])**2+(position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2)
 
 def getImage(ros_image):
     global image
@@ -107,7 +108,9 @@ def filterDistance(plant_shelf_locations_with_yaw, plant_frames):
     for plant_shelf_location_with_yaw in plant_shelf_locations_with_yaw:
         required, minDist = None, 100000000000
         for drone_position in plant_frames.keys():
-            current_distance = dist4D(plant_shelf_location_with_yaw, drone_position)
+            if plant_shelf_location_with_yaw[-1] * drone_position[-1] < 0:
+                continue
+            current_distance = math.sqrt(abs(distance_from_shelf**2-dist(plant_shelf_location_with_yaw, drone_position)**2))
             if current_distance < minDist:
                 required = drone_position
                 minDist = current_distance
@@ -117,6 +120,11 @@ def filterYaws(plant_frames_with_locations):
     plant_position_dictionary = {tuple(list(position)[:-1]): {} for position in plant_frames_with_locations.keys()}
     for position, plant_frames in plant_frames_with_locations.items():
         plant_position_dictionary[tuple(list(position)[:-1])][str(list(position)[-1])] = []
+        absiccas = list(plant_frames.keys())
+        absiccas.sort()
+        if int(list(position)[-1]) < 0:
+            absiccas.reverse()
+        plant_frames = {absicca: plant_frames[absicca] for absicca in absiccas}
         for plant_frame in plant_frames.values():
             plant_position_dictionary[tuple(list(position)[:-1])][str(list(position)[-1])].append(plant_frame)
     return plant_position_dictionary
@@ -125,9 +133,11 @@ def filterPositions(plant_frames_with_locations):
     all_frames = 0
     for yaw_position in plant_frames_with_locations.values():
         current_shelf_plants = len(yaw_position["1.5707"]) if len(yaw_position["1.5707"]) < len(yaw_position["-1.5707"]) else len(yaw_position["-1.5707"])
+        if current_shelf_plants > 3:
+            current_shelf_plants = 3
         for frame_index in range(current_shelf_plants):
             plant_positions[all_frames] = [all_plant_frames[yaw_position["1.5707"][frame_index]], all_plant_frames[yaw_position["-1.5707"][current_shelf_plants-1-frame_index]]]
-        all_frames += 1
+            all_frames += 1
     return plant_positions
 
 if __name__ == "__main__":
@@ -149,6 +159,7 @@ if __name__ == "__main__":
     plant_shelf_locations = [plant_center_frame_position[plant_shelf_location] for plant_shelf_location in plant_shelf_location_indexes]
     trajectory_subscriber = rospy.Subscriber("/in_trajectory", Bool, getTrajectoryStatus)
     scan_status = rospy.Subscriber("/scan", Bool, getScanStatus)
+    current_keys = None
     while not rospy.is_shutdown() and trajectory_status:
         try:
             if scan_status:
@@ -176,9 +187,6 @@ if __name__ == "__main__":
                     if position_key not in plant_frames.keys():
                         plant_frames[position_key] = {}
                     plant_frames[position_key][plants_location[-1][0][0][0]] = len(all_plant_frames)
-                    current_keys = list(plant_frames[position_key].keys())
-                    current_keys.sort()
-                    plant_frames[position_key] = {key: plant_frames[position_key][key] for key in current_keys}
                     all_plant_frames.append(plants[-1])
                 for index, plant in enumerate(plants):
                     cv2.imshow(f"Plant {index+1}", plant)
