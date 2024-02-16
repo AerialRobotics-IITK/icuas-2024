@@ -29,8 +29,8 @@ plant_type = None
 plant_shelf_indexes = None
 square_tolerance = 1
 y_offset_percentage = -0.1
-y_increase_value = 0.2
-x_increase_value = 0.2
+y_increase_value = 0.1
+x_increase_value = 0.05
 
 plant_center_frame_position = {
     1: [4, 6, 1.1],
@@ -172,7 +172,7 @@ if __name__ == "__main__":
                     if abs(1-width/height) > square_tolerance:
                         continue
                     plants_location.append(plant_location)
-                    plants.append(rotated_image[int(plants_location[-1][0][0][1]*(1+y_offset_percentage)):int(plants_location[-1][2][0][1]*(1+y_offset_percentage)), int(plants_location[-1][0][0][0]):int(plants_location[-1][2][0][0])])
+                    plants.append(rotated_image[int(plants_location[-1][0][0][1]*(1-y_offset_percentage-y_increase_value-0.2)):int(plants_location[-1][2][0][1]*(1+y_offset_percentage+y_increase_value)), int(plants_location[-1][0][0][0]*(1-x_increase_value)):int(plants_location[-1][2][0][0]*(1+x_increase_value))])
                     if position_key not in plant_frames.keys():
                         plant_frames[position_key] = {}
                     plant_frames[position_key][plants_location[-1][0][0][0]] = len(all_plant_frames)

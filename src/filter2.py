@@ -128,7 +128,7 @@ def count(src):
 
 def process_image(image):
     img = image
-    non_white_pixels = np.column_stack(np.where(np.all(img > [235, 235, 235], axis=-1)))
+    non_white_pixels = np.column_stack(np.where(np.all(img == [255, 255, 255], axis=-1)))
     if non_white_pixels.size == 0:
         return 0, 0, img.shape[1], img.shape[0], count(img), img  
 
@@ -182,6 +182,7 @@ def get_centroid_list(images,value_plant):
     # cv2.imshow("Detected Fruits", image_whore)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+            #yo
     return centroid_list
     #call filter2 main with image dictionary and value_plant as shown on plant_beds example Pepper etc.
     

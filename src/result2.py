@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import numpy as np
 import filter2
+import cv2
+import os
 #import aman_code.py
 x=0
-tolerance =105              #Tune this value
+tolerance =50              #Tune this value
 plants_to_look = [] 
 plant_looked = 0
 filtered_centroid_dict = {}
@@ -33,6 +35,13 @@ def filter_centroid(centroid_dict):
 
 
 def main(images,value_plant):
+    for key in images:
+        if not os.path.exists("images"):
+            os.makedirs("images")
+        if not os.path.exists(f"images/{key}/"):
+            os.makedirs(f"images/{key}/")
+        cv2.imwrite('./images'+f'/{key}'+ f'/0.jpg',img=images[key][0])
+        cv2.imwrite('./images'+f'/{key}'+ f'/1.jpg',img=images[key][1])
     global filtered_centroid_dict
     centroid_dict = filter2.get_centroid_list(images=images,value_plant=value_plant)
     filtered_centroid_dict = filter_centroid(centroid_dict)
@@ -41,7 +50,7 @@ def main(images,value_plant):
         fruit_count += len(filtered_centroid_dict[key])
     # print(fruit_count)
     return fruit_count
-            
+# yoyoyo            
 # if __name__ == '__main__':
 #     #aman.code.get_plant_franes()
 #     # images={}
