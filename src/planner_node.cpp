@@ -19,15 +19,13 @@ int main(int argc, char **argv){
     planner* planner_object = new planner(nh, r, trajectory_topic, pose_topic, plant_topic, scan_flag_topic);   
     auto plant_positions = planner_object->plant_beds;
 
-    ROS_YELLOW_STREAM("Plant positions:");
-    for(int i = 0; i < 100; i++)
-    {
-        for(auto it : plant_positions){
-            std::cout << it << " ";
-        }
-        std::cout << std::endl;
+    ROS_YELLOW_STREAM("Visiting Shelves:");
+    for(auto it : plant_positions){
+        std::cout << it << " ";
     }
-
+    std::cout << std::endl;
+    
+    usleep(2 * microsecond); //remove this delay
 
     /*Defining goals*/
     std::vector<std::vector<double>> positions;

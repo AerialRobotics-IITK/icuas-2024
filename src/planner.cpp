@@ -57,8 +57,11 @@ planner::planner(ros::NodeHandle nh_, ros::Rate r_, std::string trajectory_topic
     o_plan->setProblemDefinition(pdef);
     o_plan->setup();
     
-    r.sleep();
-    ros::spinOnce();
+    while(!(this->plant_beds.size() > 0)){
+        ROS_INFO("Waiting for plant beds to be published");
+        r.sleep();
+        ros::spinOnce();
+    }
 
     ROS_CYAN_STREAM("Planner Initialized");
 
@@ -225,6 +228,7 @@ void planner::plantCallback(const std_msgs::String::ConstPtr& plantMsg){
 2. Pepper: yellow
 3. Eggplant: purple
 */
+    ROS_INFO("Got Plant message with data : %s", plantMsg->data.c_str());
     std::string data = plantMsg->data;
     auto res = util::split(data, " ");
 
@@ -239,7 +243,7 @@ double planner::getDistance(double x, double y, double z) {
 void planner::run(std::vector<std::vector<double>> positions){
 
 #if TAKE_YAW_AS_INPUT
-    std::vector<double> prev_pos = {this->curr_x, this->curr_y, this->curr_z, 0};
+    std::vector<double> prev_pos = {1, 1, 1, 0}; // (1,1,1) is by default the first waypoint -> this is the takeoff pose
     util::Quaternion quat;
     util::Quaternion prev_quat;
 
@@ -248,7 +252,7 @@ void planner::run(std::vector<std::vector<double>> positions){
     for(auto pos : positions){
         while(getDistance(prev_pos[0], prev_pos[1], prev_pos[2]) > 0.07 || abs(abs(prev_pos[3]) - abs(this->curr_yaw)) > 0.07){
             scan_flag.data = false;
-            ROS_INFO("On way to current waypoint (%f, %f, %f, %f); from previous waypoint (%f, %f, %f, %f)", pos[0], pos[1], pos[2], pos[3], prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
+            ROS_INFO("On way to current waypoint (%f, %f, %f, %f)", prev_pos[0], prev_pos[1], prev_pos[2], prev_pos[3]);
             scan_flag_pub.publish(scan_flag);
             ros::spinOnce();
             r.sleep();

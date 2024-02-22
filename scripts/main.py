@@ -14,6 +14,18 @@ from time import strftime, localtime, sleep
 
 from app import run_detection
 
+# helper class for colored ANSI output
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 # global variables
 greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
@@ -66,8 +78,8 @@ def quaternionToRPY(quaternion):
     pitch = numpy.arcsin(2 * (w * y - z * x))
     yaw = numpy.arctan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
     return roll, pitch, yaw
-def dist4D(position_1, position_2):
-    return math.sqrt((position_1[0]-position_2[0])**2+(position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2+(position_1[3]-position_2[3])**2)
+def dist3D(position_1, position_2):
+    return math.sqrt((position_1[0]-position_2[0])**2+(position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2)
 
 def getImage(ros_image):
     global image
@@ -93,6 +105,12 @@ def getPlantLocationData(plant_location_data_string):
     global plant_location_data_raw_string
     plant_location_data_raw_string = plant_location_data_string.data
 
+def append_fruits(position_list, new_position, threshold):
+    for position in position_list:
+        if dist3D(position, new_position) <= threshold:
+            return False  
+    position_list.append(new_position)
+    return True  
 
 # main function
 if __name__ == "__main__":
@@ -117,6 +135,8 @@ if __name__ == "__main__":
 
     image_count = 0
     frame_count = 0
+
+    fruit_positions = []
     while not rospy.is_shutdown() and trajectory_status:
         try:
             filtered_image = cv2.bitwise_and(image, image, mask=mask)
@@ -134,8 +154,23 @@ if __name__ == "__main__":
                 filtered_image = cv2.bitwise_and(image, image, mask=mask)
                 
                 height, width = filtered_image.shape[:2]
-                detection_img, centerX, centerY = run_detection(filtered_image, depth)
+                detection_img = run_detection(filtered_image, depth)
+                
+                # # fruit = [x, y, z, label] --> defined in app.py
+                # for fruit in detected_fruits:
+                #     fruit[0] = fruit[0] + position.pose.position.x
+                #     fruit[1] = fruit[1] + position.pose.position.y
+                #     fruit[2] = fruit[2] + position.pose.position.z
 
+                # for fruit in detected_fruits:
+                #     if fruit[3] == plant_type:
+                #         if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], 0.5):
+                #             print(f"INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count")
+                #         else: 
+                #             print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
+                #     else:
+                #         print(f"{bcolors.FAIL}ERROR: Incorrect fruit type : {fruit[3]} detected{bcolors.ENDC}")
+                        
                 cv2.imshow("Detection Output", detection_img)
                 image_count += 1
             else:

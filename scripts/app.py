@@ -1,23 +1,15 @@
 import cv2
-import argparse
 import numpy as np
 import math
-
-argparser = argparse.ArgumentParser(description='Simple implementation of Yolov3 algorithm in Python, using custom Dataset.')
-
-argparser.add_argument('--img', type=str)
-argparser.add_argument('--out', type=str)
-
-args = argparser.parse_args()
 
 confidence, threshold = 0.5, 0.3
 
 # Load the Custom class labels, Weights and Config files
 # Then create the DNN model
-labelPath = './obj.names'
+labelPath = './custom_config/obj.names'
 labels = open(labelPath).read().strip().split('\n')
-weightsPath = './yolov4-tiny-custom_best.weights'
-configPath = './yolov4-tiny-custom.cfg'
+weightsPath = './custom_config/yolov4-tiny-custom_best.weights'
+configPath = './custom_config/yolov4-tiny-custom.cfg'
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 # Get all layer names
@@ -43,7 +35,7 @@ def draw_bb(img, boxes, confidences, classids, idxs, labels):
             cv2.putText(img, center_text, (center_x - 50, center_y - 10), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 1)
 
 
-
+            print("not drawn box")
 
             text = "{}:{:2.5f}".format(labels[classids[i]], confidences[i])
             cv2.putText(img, text, (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 70, 0), 1)
@@ -84,17 +76,26 @@ def predict(net, layer_names, height, width, img, labels):
                 # YOLO returns the center (x,y) - coordinates of BB
                 # followed by the boxes weight and height
                 box = detection[0:4] * np.array([width, height, width, height])
+
+
                 centerX, centerY, box_width, box_height = box.astype('int')
+
                 x = int(centerX - (box_width / 2))
                 y = int(centerY - (box_height / 2))
 
+                print("checking error in appending")
                 boxes.append([x, y, int(box_width), int(box_height), class_id])
+                print("no error in appending")
+
                 confidences.append(float(detect_confidence))
                 class_ids.append(class_id)
 
     # Suppress overlapping boxes
-    idxs = cv2.dnn.NMSBoxes(boxes, confidences, confidence, threshold)
-
+    print("checking error here")
+    idxs = cv2.dnn.NMSBoxes(map(int, boxes), confidences, confidence, threshold)
+    print("no error here")
+    
+    print("drawing boxes!")
     img = draw_bb(img, boxes, confidences, class_ids, idxs, labels)
 
     return img, boxes, confidences, class_ids, idxs
@@ -105,12 +106,37 @@ def run_detection(img, depth):
 
     print("Running Detection!")
     img, boxes, _, _, _ = predict(net, yolo_layers, height, width, img, labels)
-    x, y, z = get3DCoords(boxes, depth)
 
     return img
 
 
-def get3DCoords(boxes, depth, fx, fy, ppx, ppy):
+# header:                                                                                                                                                                                                            
+#   seq: 45                                                                                                                                                                                                          
+#   stamp: 
+#     secs: 3407
+#     nsecs:  43000000
+#   frame_id: "red/camera"
+# height: 480
+# width: 640
+# distortion_model: "plumb_bob"
+# D: [0.0, 0.0, 0.0, 0.0, 0.0]
+# K: [381.36246688113556, 0.0, 320.5, 0.0, 381.36246688113556, 240.5, 0.0, 0.0, 1.0]
+# R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+# P: [381.36246688113556, 0.0, 320.5, -0.0, 0.0, 381.36246688113556, 240.5, 0.0, 0.0, 0.0, 1.0, 0.0]
+# binning_x: 0
+# binning_y: 0
+# roi: 
+#   x_offset: 0
+#   y_offset: 0
+#   height: 0
+#   width: 0
+#   do_rectify: False
+# ---
+
+
+def get3DCoords(boxes, depth, fx = 381.36246688113556, fy = 381.36246688113556, ppx = 320.5, ppy = 240.5):
+
+    detected_fruits = []
 
     for box in boxes:
         x, y = box[0], box[1]
@@ -132,9 +158,10 @@ def get3DCoords(boxes, depth, fx, fy, ppx, ppy):
         Ytarget = -(Ztemp*math.sin(theta) + Ytemp*math.cos(theta))
         Ztarget = Ztemp*math.cos(theta) + Ytemp*math.sin(theta)
 
+        detected_fruits.append([Xtarget, Ytarget, Ztarget, label])
         print(f"Found {label} at ({Xtarget}, {Ytarget}, {Ztarget})!")
 
-    return Xtarget, Ytarget, Ztarget
+    return detected_fruits
 
 
 

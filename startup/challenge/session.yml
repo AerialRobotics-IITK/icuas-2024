@@ -34,18 +34,6 @@ windows:
           roslaunch icuas24_competition spawn_plant.launch name:=plant2 model_name:=plant x:=4.0 y:=4.5 z:=6.699999999999999 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant3 model_name:=tomato_3 x:=4.0 y:=13.5 z:=3.9 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant4 model_name:=tomato_3 x:=4.0 y:=15.0 z:=3.9 yaw:=-1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant5 model_name:=plant x:=10.0 y:=21.0 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant6 model_name:=plant x:=10.0 y:=22.5 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant7 model_name:=plant x:=10.0 y:=19.5 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant8 model_name:=tomato_1 x:=10.0 y:=22.5 z:=3.9 yaw:=-1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant9 model_name:=tomato_2 x:=10.0 y:=19.5 z:=3.9 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant10 model_name:=tomato_1 x:=16.0 y:=13.5 z:=1.1 yaw:=-1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant11 model_name:=plant x:=16.0 y:=12.0 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant12 model_name:=plant x:=16.0 y:=15.0 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant13 model_name:=plant x:=16.0 y:=21.0 z:=1.1 yaw:=1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant14 model_name:=tomato_2 x:=16.0 y:=19.5 z:=1.1 yaw:=-1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant15 model_name:=plant x:=16.0 y:=19.5 z:=6.699999999999999 yaw:=-1.5707
-          roslaunch icuas24_competition spawn_plant.launch name:=plant16 model_name:=tomato_3 x:=16.0 y:=22.5 z:=6.699999999999999 yaw:=1.5707
           rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Tomato 5 17 22 25 27"
         #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Eggplant 4 7 13 18 20"
         #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Pepper 10 11 14 21 23 24"
@@ -69,21 +57,6 @@ windows:
       panes:
         - waitForRos; roslaunch uav_ros_tracker topp_tracker.launch 
           tracker_config:=custom_config/topp_config_custom.yaml
-  # - intermediate_solution:
-  #     layout:
-  #     panes:
-  #       - |
-  #         waitForRos
-  #         waitForSysStatus
-  #         waitForSimulation
-  #         waitForPlants
-  #         echo "To run intermediate solution: rosrun icuas24_competition icuas24_competition_intermediate"
-  #       - |
-  #         waitForRos
-  #         waitForSysStatus
-  #         waitForSimulation
-  #         waitForPlants
-  #         rostopic echo /red/carrot/pose
   - final_solution:
       layout:
       panes:
@@ -91,13 +64,11 @@ windows:
           waitForRos
           waitForSysStatus
           waitForSimulation
-          waitForPlants
           rosrun icuas24_competition icuas24_competition_planner
         - |
           waitForRos
           waitForSysStatus
           waitForSimulation
-          waitForPlants 
           rostopic echo /red/carrot/pose
         - |
           waitForRos
@@ -108,9 +79,7 @@ windows:
           waitForRos
           waitForSysStatus
           waitForSimulation
-          waitForPlants
-          cd ../../scripts
-          python main.py
+          python ../../scripts/main.py 
   - debug:
       layout:
       panes:
@@ -118,13 +87,11 @@ windows:
         waitForRos
         waitForSysStatus
         waitForSimulation
-        waitForPlants 
         rostopic echo /scan
       - |
         waitForRos
         waitForSysStatus
         waitForSimulation
-        waitForPlants 
         rostopic echo /in_trajectory
   - rosbag_record:
       layout:
@@ -133,7 +100,6 @@ windows:
         waitForRos
         waitForSysStatus
         waitForSimulation
-        waitForPlants
         echo "To store necessary topics in rosbag: rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory"
         rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory
 
