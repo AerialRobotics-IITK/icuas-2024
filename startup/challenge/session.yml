@@ -42,7 +42,7 @@ windows:
       panes:
         - waitForRos; roslaunch uav_ros_control pid_carrot.launch 
           msf_callback_enable:=true
-          odometry:=odometry
+          odometry:=odometry  
           control_type:=pid_cascade_node_yawrate
           default_params:=custom_config/position_control_custom.yaml
         - |
@@ -74,7 +74,6 @@ windows:
           waitForRos
           waitForSysStatus
           waitForSimulation
-          timeEvent
         - |
           waitForRos
           waitForSysStatus
@@ -93,15 +92,7 @@ windows:
         waitForSysStatus
         waitForSimulation
         rostopic echo /in_trajectory
-  - rosbag_record:
-      layout:
-      panes:
-      - |
-        waitForRos
-        waitForSysStatus
-        waitForSimulation
-        echo "To store necessary topics in rosbag: rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory"
-        rosbag record /red/imu /red/pose /red/camera/color/image_raw /red/plants_beds /scan /in_trajectory
+  
 
 
   

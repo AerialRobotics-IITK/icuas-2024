@@ -12,7 +12,7 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import PoseStamped
 from time import strftime, localtime, sleep
 
-from app import run_detection
+from app import np, run_detection
 
 # helper class for colored ANSI output
 class bcolors:
@@ -140,6 +140,7 @@ if __name__ == "__main__":
     frame_count = 0
 
     fruit_positions = []
+    all_fruits=[] #temp array with all the fruits detected 
     while not rospy.is_shutdown() and trajectory_status:
         try:
             filtered_image = cv2.bitwise_and(image, image, mask=mask)
@@ -167,6 +168,8 @@ if __name__ == "__main__":
                     fruit[1] = fruit[1] + position.pose.position.y
                     fruit[2] = fruit[2] + position.pose.position.z
 
+                    all_fruits.append([fruit[0],fruit[1],fruit[2],fruit[3]])
+
                 for fruit in detected_fruits:
                     if fruit[3] == plant_type:
                         if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], 0.1):
@@ -176,7 +179,8 @@ if __name__ == "__main__":
                     else:
                         print(f"{bcolors.FAIL}ERROR: Incorrect fruit type : {fruit[3]} detected{bcolors.ENDC}")
                         
-                image_count += 1
+                frame_count += 1
+                
             else:
                 frame_count = 0
                 pass
@@ -184,5 +188,7 @@ if __name__ == "__main__":
         except Exception as exception:
             print(f"Warning: {exception}")
         cv2.waitKey(1)
+    np.savetxt('fruits.txt',np.array(all_fruits),fmt="%s")
+
     cv2.destroyAllWindows()
     print()
