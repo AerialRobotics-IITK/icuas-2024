@@ -115,7 +115,7 @@ def getPlantLocationData(plant_location_data_string):
 
 def append_fruits(position_list, new_position, threshold_x, threshold_2d):
     for position in position_list:
-        if ((position[0]-new_position[0]) <= threshold_x and dist2D(position,new_position)<=threshold_2d):
+        if (abs(position[0]-new_position[0]) <= threshold_x and dist2D(position,new_position)<=threshold_2d):
             print(f"{len(position_list)} is the length of the positions list")
             if(len(position_list) > 0):
                 print(position_list[0])
@@ -218,17 +218,18 @@ if __name__ == "__main__":
 
                 # fruit = [x, y, z, label] --> defined in app.py
                 for fruit in detected_fruits:
+                    fruit[0], fruit[1],fruit[2] = fruit[0] + 0.0 , fruit[1] - 0.05, fruit[2] + 0.2
                     fruit[0], fruit[1],fruit[2] = rotate_point(fruit)
-                    fruit[0] = fruit[0] + position.pose.position.x
-                    fruit[1] = fruit[1] + position.pose.position.y
-                    fruit[2] = fruit[2] + position.pose.position.z
+                    fruit[0] = fruit[0] + position.pose.position.x 
+                    fruit[1] = fruit[1] + position.pose.position.y 
+                    fruit[2] = fruit[2] + position.pose.position.z 
 
                     all_fruits.append([fruit[0],fruit[1],fruit[2],fruit[3]])
 
                 for fruit in detected_fruits:
                     if fruit[3] == plant_type:
                             #Change the values of threshold here
-                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], threshold_x = 0.7, threshold_2d = 0.1):
+                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], threshold_x = 0.5, threshold_2d = 0.1):
                             print(f"{bcolors.OKBLUE}INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count {bcolors.ENDC}")
                         else: 
                             print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
