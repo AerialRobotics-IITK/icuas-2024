@@ -264,7 +264,7 @@ void planner::run(std::vector<std::vector<double>> positions){
             scan_flag_pub.publish(scan_flag);
         }
 
-        usleep(2 * microsecond);
+        usleep(1 * microsecond);
 
         quat = util::rpyToQuaternion(0, 0, pos[3]);
         prev_quat = util::rpyToQuaternion(0, 0, prev_pos[3]);
