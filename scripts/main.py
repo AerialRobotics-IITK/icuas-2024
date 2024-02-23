@@ -255,6 +255,8 @@ if __name__ == "__main__":
 
     fruit_count_msg = Int32()
     fruit_count_msg.data = len(fruit_positions)
+    print(len(fruit_positions))
+
     while not rospy.is_shutdown():
         fruit_count_pub.publish(fruit_count_msg)
         rate.sleep()
