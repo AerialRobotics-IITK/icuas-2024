@@ -31,6 +31,7 @@ greenLower = (29, 86, 6)
 greenUpper = (64, 255, 255)
 GREEN = (0, 255, 0)
 
+
 image_bridge = CvBridge()
 image = None
 depth = None
@@ -63,6 +64,8 @@ trajectory_status = True
 
 
 
+
+
 # for logging
 folder_name = f"{date.today()} {strftime('%H_%M_%S', localtime())}"
 
@@ -81,6 +84,10 @@ def quaternionToRPY(quaternion):
     return roll, pitch, yaw
 def dist3D(position_1, position_2):
     return math.sqrt((position_1[0]-position_2[0])**2+(position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2)
+
+def dist2D(position_1, position_2):
+    return math.sqrt((position_1[1]-position_2[1])**2+(position_1[2]-position_2[2])**2)
+
 
 def getImage(ros_image):
     global image
@@ -106,9 +113,9 @@ def getPlantLocationData(plant_location_data_string):
     global plant_location_data_raw_string
     plant_location_data_raw_string = plant_location_data_string.data
 
-def append_fruits(position_list, new_position, threshold):
+def append_fruits(position_list, new_position, threshold_x, threshold_2d):
     for position in position_list:
-        if dist3D(position, new_position) <= threshold:
+        if ((position[0]-new_position[0]) <= threshold_x and dist2D(position,new_position)<=threshold_2d):
             print(f"{len(position_list)} is the length of the positions list")
             if(len(position_list) > 0):
                 print(position_list[0])
@@ -220,7 +227,9 @@ if __name__ == "__main__":
 
                 for fruit in detected_fruits:
                     if fruit[3] == plant_type:
-                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], 0.1):
+                            #Change the values of threshold here
+                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], threshold_x = 0.1, threshold_2d = 0.1):
+                        
                             print(f"INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count")
                         else: 
                             print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
@@ -240,3 +249,12 @@ if __name__ == "__main__":
 
     cv2.destroyAllWindows()
     print()
+    rate = rospy.Rate(10) # 10hz
+
+    fruit_count_pub = rospy.Publisher("/fruit_count", Int32, queue_size=10) 
+
+    fruit_count_msg = Int32()
+    fruit_count_msg.data = len(fruit_positions)
+    while not rospy.is_shutdown():
+        fruit_count_pub.publish(fruit_count_msg)
+        rate.sleep()
