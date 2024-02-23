@@ -108,6 +108,24 @@ def getDepthEstimate(roi_depth):
                 sum = sum + value
     return sum / n # mean depth in the box
     
+
+def coordinate_transformation(x, y, z):             # drone to gazebo format (x,y,z) to (-x,z,y)
+    transformation_matrix = np.array([[0, 0, 1],
+                                      [-1, 0, 0],
+                                      [0, 1, 0]])
+    original_coordinates = np.array([x, y, z])
+    transformed_coordinates = np.dot(transformation_matrix, original_coordinates)  
+    return transformed_coordinates
+
+# def quaternionToRPY(quaternion):
+#     x, y, z, w = quaternion
+#     roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x**2 + y**2))
+#     pitch = np.arcsin(2 * (w * y - z * x))
+#     yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
+#     return roll, pitch, yaw
+
+
+
 def get3DCoords(boxes, depth, fx = 381.36246688113556, fy = 381.36246688113556, ppx = 320.5, ppy = 240.5):
 
     fruits_pos = []
@@ -125,17 +143,17 @@ def get3DCoords(boxes, depth, fx = 381.36246688113556, fy = 381.36246688113556, 
         # print(f"Trying to get depth of fruit at ({center_x},{center_y}) in depth frame of shape {depth.shape}")
         dist = depth[center_y][center_x]
 
+
         Xtemp = dist*(center_x - ppx)/fx
         Ytemp = dist*(center_y - ppy)/fy
         Ztemp = dist
-        theta = 0
+        
 
-        Xtarget = Xtemp - 0 #subtract RGB camera module offset from the center of the realsense
-        Ytarget = -(Ztemp*math.sin(theta) + Ytemp*math.cos(theta))
-        Ztarget = Ztemp*math.cos(theta) + Ytemp*math.sin(theta)
+        Xtarget, Ytarget, Ztarget =Xtemp,Ytemp,Ztemp
+
+        print(f"Camera Frame pose for {label}: ({Xtarget}, {Ytarget}, {Ztarget})!")
 
         fruits_pos.append([Xtarget, Ytarget, Ztarget, label])
-        # print(f"Found {label} at ({Xtarget}, {Ytarget}, {Ztarget})!")
 
     return fruits_pos
 

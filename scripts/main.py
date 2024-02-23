@@ -56,7 +56,8 @@ delay = 2
 
 scan_status = False
 
-roll, pitch, yaw = 0, 0, 0
+global roll, pitch, yaw
+roll, pitch, yaw = 0,0,0
 position = None
 trajectory_status = True
 
@@ -115,6 +116,52 @@ def append_fruits(position_list, new_position, threshold):
     position_list.append(new_position)
     return True  
 
+def getRPYdata(rpy_data):
+    global roll, pitch, yaw
+    roll, pitch, yaw = quaternionToRPY([rpy_data.pose.orientation.x, rpy_data.pose.orientation.y, rpy_data.pose.orientation.z, rpy_data.pose.orientation.w])
+
+
+
+def rotate_point(transformed_cordinates):
+    global roll, pitch, yaw
+
+    #Debug
+    print(f"Current Orientation is: Roll = {roll}, Pitch = {pitch}, Yaw = {yaw}")
+
+    x,y,z=transformed_cordinates[0],transformed_cordinates[1],transformed_cordinates[2]
+    Rt = np.array([[0,-1,0],
+                  [0,0,-1],
+                  [1,0,0]]).transpose()
+
+    Rx = np.array([[1, 0, 0],
+                   [0, np.cos(pitch), -np.sin(pitch)],
+                   [0, np.sin(pitch), np.cos(pitch)]]).transpose()
+    
+    Ry = np.array([[np.cos(yaw), 0, np.sin(yaw)],
+                   [0, 1, 0],
+                   [-np.sin(yaw), 0, np.cos(yaw)]])
+    
+    Rz = np.array([[np.cos(roll), -np.sin(roll), 0],
+                   [np.sin(roll), np.cos(roll), 0],
+                   [0, 0, 1]])
+
+
+    R = np.dot(Rt,np.dot(Rz, np.dot(Ry, Rx)))
+    
+    point = np.array([[x], [y], [z]])
+    rotated_point = np.dot(R, point)
+
+
+    rotated_x, rotated_y, rotated_z = rotated_point.flatten()
+
+    print(f"Rotated Drone Frame Pose: X = {rotated_x}, Y = {rotated_y}, Z = {rotated_z}")
+
+
+
+    return rotated_x, rotated_y, rotated_z
+
+
+
 # main function
 if __name__ == "__main__":
     rospy.init_node("get_plant_frames")
@@ -122,12 +169,12 @@ if __name__ == "__main__":
 
     image_subscriber = rospy.Subscriber("/red/camera/color/image_raw", Image, getImage)
     depth_subscriber = rospy.Subscriber("/red/camera/depth/image_raw", Image, getDepth)
-    imu_subscriber = rospy.Subscriber("/red/imu", Imu, getImuData)
+    # imu_subscriber = rospy.Subscriber("/red/imu", Imu, getImuData)
     position_subscriber = rospy.Subscriber("/red/pose", PoseStamped, getPosition)
     plant_locations = rospy.Subscriber("/red/plants_beds", String, getPlantLocationData)
     trajectory_subscriber = rospy.Subscriber("/in_trajectory", Bool, getTrajectoryStatus)
     scan_status = rospy.Subscriber("/scan", Bool, getScanStatus)
-    
+    rpy_subscriber = rospy.Subscriber("/red/carrot/pose", PoseStamped, getRPYdata)
 
     #wait for plant_beds topic
     while plant_location_data_raw_string == None:
@@ -164,6 +211,7 @@ if __name__ == "__main__":
 
                 # fruit = [x, y, z, label] --> defined in app.py
                 for fruit in detected_fruits:
+                    fruit[0], fruit[1],fruit[2] = rotate_point(fruit)
                     fruit[0] = fruit[0] + position.pose.position.x
                     fruit[1] = fruit[1] + position.pose.position.y
                     fruit[2] = fruit[2] + position.pose.position.z
