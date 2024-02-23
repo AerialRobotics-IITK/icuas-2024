@@ -108,9 +108,6 @@ def getPlantLocationData(plant_location_data_string):
 def append_fruits(position_list, new_position, threshold):
     for position in position_list:
         if dist3D(position, new_position) <= threshold:
-            print(f"{len(position_list)} is the length of the positions list")
-            if(len(position_list) > 0):
-                print(position_list[0])
             return False  
     position_list.append(new_position)
     return True  
@@ -157,25 +154,24 @@ if __name__ == "__main__":
                 filtered_image = cv2.bitwise_and(image, image, mask=mask)
                 
                 height, width = filtered_image.shape[:2]
-                detection_img, detected_fruits = run_detection(filtered_image, depth)
+                detection_img = run_detection(filtered_image, depth)
+                
+                # # fruit = [x, y, z, label] --> defined in app.py
+                # for fruit in detected_fruits:
+                #     fruit[0] = fruit[0] + position.pose.position.x
+                #     fruit[1] = fruit[1] + position.pose.position.y
+                #     fruit[2] = fruit[2] + position.pose.position.z
 
-                cv2.imshow("Detection Output", detection_img)
-
-                # fruit = [x, y, z, label] --> defined in app.py
-                for fruit in detected_fruits:
-                    fruit[0] = fruit[0] + position.pose.position.x
-                    fruit[1] = fruit[1] + position.pose.position.y
-                    fruit[2] = fruit[2] + position.pose.position.z
-
-                for fruit in detected_fruits:
-                    if fruit[3] == plant_type:
-                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], 0.1):
-                            print(f"INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count")
-                        else: 
-                            print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
-                    else:
-                        print(f"{bcolors.FAIL}ERROR: Incorrect fruit type : {fruit[3]} detected{bcolors.ENDC}")
+                # for fruit in detected_fruits:
+                #     if fruit[3] == plant_type:
+                #         if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], 0.5):
+                #             print(f"INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count")
+                #         else: 
+                #             print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
+                #     else:
+                #         print(f"{bcolors.FAIL}ERROR: Incorrect fruit type : {fruit[3]} detected{bcolors.ENDC}")
                         
+                cv2.imshow("Detection Output", detection_img)
                 image_count += 1
             else:
                 frame_count = 0

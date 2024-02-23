@@ -1,14 +1,6 @@
 import cv2
-import argparse
-import math
 import numpy as np
-
-argparser = argparse.ArgumentParser(description='Simple implementation of Yolov3 algorithm in Python, using custom Dataset.')
-
-argparser.add_argument('--img', type=str)
-argparser.add_argument('--out', type=str)
-
-args = argparser.parse_args()
+import math
 
 confidence, threshold = 0.5, 0.3
 
@@ -25,10 +17,8 @@ net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 layer_names = net.getLayerNames()
 yolo_layers = ['yolo_30', 'yolo_37']
 
-
 def draw_bb(img, boxes, confidences, classids, idxs, labels):
     # If detection exists
-    boxes_with_labels = []
     if len(idxs):
         for i in idxs.flatten():
             # Get BB coordinates
@@ -37,17 +27,20 @@ def draw_bb(img, boxes, confidences, classids, idxs, labels):
             center_x = x + w // 2
             center_y = y + h // 2
 
+
+
             cv2.rectangle(img, (x,y), (x+w, y+h), (0, 255, 0), 3)
             cv2.circle(img, (center_x, center_y), 5, (255, 0, 0), -1)
             center_text = "({}, {})".format(center_x, center_y)
             cv2.putText(img, center_text, (center_x - 50, center_y - 10), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 1)
 
+
+            print("not drawn box")
+
             text = "{}:{:2.5f}".format(labels[classids[i]], confidences[i])
             cv2.putText(img, text, (x, y-10), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 70, 0), 1)
-            # print(f"Detected fruit at ({center_x},{center_y}) in image frame of shape {img.shape}")
-            boxes_with_labels.append([x, y, w, h, labels[classids[i]]])
-            # print(f"Sent box info with labels!")
-    return img, boxes_with_labels
+
+    return img
 
 # init lists of detected boxes, confidences, class IDs
 boxes, confidences, class_ids = [], [], []  
@@ -63,6 +56,7 @@ def predict(net, layer_names, height, width, img, labels):
 
     # init lists of detected boxes, confidences, class IDs
     boxes, confidences, class_ids = [], [], []
+
     # loop over each of the layer outputs
     for out in layerOutputs:
         # loop over each of the detections
@@ -76,54 +70,79 @@ def predict(net, layer_names, height, width, img, labels):
             # probability is greater than minimum probability
 
             if detect_confidence > confidence:
+                print(detect_confidence)
                 # scale the BB coordinates back relative to
                 # the size of the image.
                 # YOLO returns the center (x,y) - coordinates of BB
                 # followed by the boxes weight and height
                 box = detection[0:4] * np.array([width, height, width, height])
+
+                print("hi!!")
                 centerX, centerY, box_width, box_height = box.astype('int')
+                print("you did reach here")
                 x = int(centerX - (box_width / 2))
                 y = int(centerY - (box_height / 2))
 
-                boxes.append([x, y, int(box_width), int(box_height)])
-
+                boxes.append([x, y, int(box_width), int(box_height), class_id])
                 confidences.append(float(detect_confidence))
                 class_ids.append(class_id)
 
     # Suppress overlapping boxes
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, confidence, threshold)
-
-    img, boxes_with_labels = draw_bb(img, boxes, confidences, class_ids, idxs, labels)
-
-    return img, boxes, confidences, class_ids, idxs, boxes_with_labels
-
-def getDepthEstimate(roi_depth):
-    n = 0
-    sum = 0
-    for i in range(0,roi_depth.shape[0]):
-        for j in range(0,roi_depth.shape[1]):
-            value = roi_depth.item(i, j)
-            if value > 0.:
-                n = n + 1
-                sum = sum + value
-    return sum / n # mean depth in the box
     
-def get3DCoords(boxes, depth, fx = 381.36246688113556, fy = 381.36246688113556, ppx = 320.5, ppy = 240.5):
+    print("drawing boxes!")
+    img = draw_bb(img, boxes, confidences, class_ids, idxs, labels)
 
-    fruits_pos = []
+    return img, boxes, confidences, class_ids, idxs
+
+def run_detection(img, depth):
+    print(img.shape)
+    height, width = img.shape[:2]
+
+    print("Running Detection!")
+    img, boxes, _, _, _ = predict(net, yolo_layers, height, width, img, labels)
+
+    return img
+
+
+# header:                                                                                                                                                                                                            
+#   seq: 45                                                                                                                                                                                                          
+#   stamp: 
+#     secs: 3407
+#     nsecs:  43000000
+#   frame_id: "red/camera"
+# height: 480
+# width: 640
+# distortion_model: "plumb_bob"
+# D: [0.0, 0.0, 0.0, 0.0, 0.0]
+# K: [381.36246688113556, 0.0, 320.5, 0.0, 381.36246688113556, 240.5, 0.0, 0.0, 1.0]
+# R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+# P: [381.36246688113556, 0.0, 320.5, -0.0, 0.0, 381.36246688113556, 240.5, 0.0, 0.0, 0.0, 1.0, 0.0]
+# binning_x: 0
+# binning_y: 0
+# roi: 
+#   x_offset: 0
+#   y_offset: 0
+#   height: 0
+#   width: 0
+#   do_rectify: False
+# ---
+
+
+def get3DCoords(boxes, depth, fx, fy, ppx, ppy):
+
+    detected_fruits = []
 
     for box in boxes:
         x, y = box[0], box[1]
         w, h = box[2], box[3]
         center_x = x + w // 2
         center_y = y + h // 2
-        label = box[4]
 
-        # roi_depth = depth[y:y+h, x:x+w] #selecting the box in depth image
-        # dist = getDepthEstimate(roi_depth)
+        class_id = box[4]
+        label = labels[class_id]
 
-        # print(f"Trying to get depth of fruit at ({center_x},{center_y}) in depth frame of shape {depth.shape}")
-        dist = depth[center_y][center_x]
+        dist = depth[center_x][center_y]
 
         Xtemp = dist*(center_x - ppx)/fx
         Ytemp = dist*(center_y - ppy)/fy
@@ -134,16 +153,10 @@ def get3DCoords(boxes, depth, fx = 381.36246688113556, fy = 381.36246688113556, 
         Ytarget = -(Ztemp*math.sin(theta) + Ytemp*math.cos(theta))
         Ztarget = Ztemp*math.cos(theta) + Ytemp*math.sin(theta)
 
-        fruits_pos.append([Xtarget, Ytarget, Ztarget, label])
-        # print(f"Found {label} at ({Xtarget}, {Ytarget}, {Ztarget})!")
+        detected_fruits.append([Xtarget, Ytarget, Ztarget, label])
+        print(f"Found {label} at ({Xtarget}, {Ytarget}, {Ztarget})!")
 
-    return fruits_pos
+    return detected_fruits
 
-def run_detection(img, depth):
-    print(img.shape)
-    height, width = img.shape[:2]
-    img, boxes, _, _, _, boxes_with_labels = predict(net, yolo_layers, height, width, img, labels)
 
-    fruits_pos = get3DCoords(boxes_with_labels, depth, fx = 381.36246688113556, fy = 381.36246688113556, ppx = 320.5, ppy = 240.5)
 
-    return img, fruits_pos
