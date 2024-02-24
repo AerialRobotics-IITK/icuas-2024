@@ -58,6 +58,7 @@ windows:
           roslaunch icuas24_competition spawn_plant.launch name:=plant26 model_name:=pepper_1 x:=16.0 y:=13.5 z:=3.9 yaw:=-1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant27 model_name:=pepper_3 x:=16.0 y:=15.0 z:=6.699999999999999 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant28 model_name:=eggplant_3 x:=4.0 y:=12.0 z:=1.1 yaw:=-1.5707
+          roslaunch icuas24_competition spawn_plant.launch name:=plant41 model_name:=eggplant_3 x:=4.0 y:=13.5 z:=1.1 yaw:=-1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant29 model_name:=eggplant_2 x:=4.0 y:=19.5 z:=1.1 yaw:=-1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant30 model_name:=eggplant_4 x:=4.0 y:=22.5 z:=1.1 yaw:=-1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant31 model_name:=eggplant_4 x:=4.0 y:=21.0 z:=1.1 yaw:=-1.5707
@@ -71,7 +72,6 @@ windows:
           roslaunch icuas24_competition spawn_plant.launch name:=plant39 model_name:=plant x:=16.0 y:=6.0 z:=3.9 yaw:=1.5707
           roslaunch icuas24_competition spawn_plant.launch name:=plant40 model_name:=eggplant_3 x:=16.0 y:=4.5 z:=3.9 yaw:=-1.5707
           rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Eggplant 4 7 13 18 20"
-        #  rostopic pub --latch /$UAV_NAMESPACE/plants_beds std_msgs/String "Pepper 10 11 14 21 23 24"
   - arm&takeof:
   - arm&takeof:
       layout: tiled

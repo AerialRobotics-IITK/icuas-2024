@@ -228,8 +228,13 @@ if __name__ == "__main__":
 
                 for fruit in detected_fruits:
                     if fruit[3] == plant_type:
-                            #Change the values of threshold here
-                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], threshold_x = 0.5, threshold_2d = 0.1):
+                        if plant_type == "Tomato":
+                            thresh = 0.1
+                        elif plant_type == "Pepper":
+                            thresh = 0.1
+                        elif plant_type == "Eggplant":
+                            thresh = 0.07
+                        if append_fruits(fruit_positions, [fruit[0], fruit[1], fruit[2]], threshold_x = 0.5, threshold_2d = thresh ):
                             print(f"{bcolors.OKBLUE}INFO: Detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) added to count {bcolors.ENDC}")
                         else: 
                             print(f"{bcolors.WARNING}WARNING: Skipping detected fruit at ({fruit[0]}, {fruit[1]}, {fruit[2]}) to avoid double counting! {bcolors.ENDC}")
