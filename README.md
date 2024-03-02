@@ -1,10 +1,15 @@
 # ICUAS 2024 UAV Competition
 The main repository for ICUAS'24 UAV competition for submission by ariitk
 
-## Rulebook
-Check the [rulebook](rulebook/ICUAS24_UAV_Comp_Rulebook_V1.pdf).
+## Running the Code
+```bash
+git clone git@github.com:AerialRobotics-IITK/icuas-2024 && cd icuas-2024 
+./docker_build.sh && ./docker_run.sh 
+./startup/challenge/start.sh
+```
+<hr>
 
-## Running on Docker
+## Development on Docker
 
 #### Installing Docker
 Check the official docker engine installation [guide](https://docs.docker.com/engine/install/)
@@ -35,37 +40,14 @@ Check the official docker engine installation [guide](https://docs.docker.com/en
   ```
   docker system prune --all
   ```
-## Current Progress
+<hr>
 
-### Intermediate Submission
-- [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
-- [X] Testing intermediate submission (from scratch) on bare minimum sandbox
-- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing
-- [X] Takeoff Service Conflicting with waypoint follower -> increase delay in the call of the trajectory planner
-- [x] Implemented working refactored solution for intermediate submission with seperate window via trajectory publisher
-- [X] Testing intermediate submission (from scratch) on bare minimum sandbox
-- [X] Submitting the .zip file for intermediate submissions after cross-checking for human erros and testing
+## Problem Statement Details
 
-### Detection / Image Processing
-- [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
-- [X] Enabling detection, and counting the fruits using camera feed while drone traverses the hardcoded trajectory; count fruits ignoring double counting
-- [X] Implementing feed stabilizer using quaternion data from pose
-- [X] A simple detection function to count the fruits given a centered pic of the fruits (taking into account the variety observed)
-- [X] Enabling detection using Yolov4 trained on custom dataset with applied filter (using depth data) to view only objects of interest
-- [X] Getting 3D Pose estimate using perspective projection of detected pixel coordinates from Yolov4
-- [X] Defining limts under which double counting is detected and detected fruits are skipped
+### Rulebook
+Check the [rulebook](rulebook/ICUAS24_UAV_Comp_Rulebook_V1.pdf).
 
-### Trajectory Generation
-- [X] Hardcoded trajectory so that the drone traverses facing each of the shelves atleast once
-- [X] Implementing Motion planning given the static occupancy grid / collision geoemtries using OML & PCL
-- [X] Adding a frontend to the implemented planner to take input of multiple waypoints as ``std::vector``
-- [X] Testing the constraints and remove any hardcoded delays in planner
-- [X] Integrating the algorithm for generating permuatution of waypoints with the planner
-- [X] Implementating alternative motion planning approach with only heuristcs
-- [X] Handling cases of double counting of fruits due to single-sided and double-sided visibility
-
-
-## Simulation
+### Simulation
 
 | ![simulation.png](.fig/simulation.png) | 
 |:--:| 
